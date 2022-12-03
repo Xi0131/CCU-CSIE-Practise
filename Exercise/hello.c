@@ -2,15 +2,16 @@
 
 int main()
 {
-    int n = 0;
-    int ans = 0;
-    int a = 0, b = 1;
-    while(n < 100000000)
+    int a = 0;
+    int b = 1;
+    int t = 0;
+    int n = 10;
+    for(int i = 0; i < n; ++i)
     {
-        n = a + b;
+        t += a+b;
         a = b;
-        b = n;
-        ++ans;
-    }printf("%d", n);
+        b = t;
+    }
+    printf("%d", t);
     return 0;
 }
