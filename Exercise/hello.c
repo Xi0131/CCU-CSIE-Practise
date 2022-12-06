@@ -1,17 +1,33 @@
-#include <stdio.h>
+#include<stdio.h>
+#include<math.h>
 
 int main()
 {
-    int a = 0;
-    int b = 1;
-    int t = 0;
-    int n = 10;
-    for(int i = 0; i < n; ++i)
+    double m, n;
+    n = 80009.0;
+    double t1 = 5 * n * n + 4;
+    double t2 = 5 * pow(n, 2) - 4;
+    double m1 = sqrt(t1);
+    double m2 = sqrt(t2);
+    printf("%e",t1);
+    printf("%e",m2*m2);
+    if(m1*m1 == t1)
     {
-        t += a+b;
-        a = b;
-        b = t;
+        printf("yes1");
     }
-    printf("%d", t);
+    else
+    {
+        printf("no1");
+    }
+
+    if(m2*m2 == t2)
+    {
+        printf("yes2");
+    }
+    else
+    {
+        printf("no2");
+    }
+
     return 0;
 }
