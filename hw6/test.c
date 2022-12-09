@@ -2,7 +2,7 @@
 
 int main()
 {   
-    int *arr[10];
+    int arr[10];
     *arr = 1;
     printf("%d", *arr);
     int i, *p;

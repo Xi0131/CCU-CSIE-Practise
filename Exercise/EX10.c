@@ -5,10 +5,10 @@ void sym(), multiply();
 int main()
 {
     int M;
-    printf("What is the size of the matrix: ");
+    // printf("What is the size of the matrix: ");
     scanf("%d", &M);
     int arr[M][M];
-    printf("Please enter the matrix: ");
+    // printf("Please enter the matrix: ");
     for(int i = 0; i < M; ++i)
         for(int j = 0; j < M; ++j)
             scanf("%d", &arr[j][i]);
@@ -18,12 +18,12 @@ int main()
     printf("\n");
 
     int t;
-    printf("Enter the number of input data: ");
+    // printf("Enter the number of input data: ");
     scanf("%d", &t);
     for(int i = 0; i < t; ++i)
         sym();
 
-    printf("Enter the number of input data: ");
+    // printf("Enter the number of input data: ");
     scanf("%d", &t);
     for(int i = 0; i < t; ++i)
         multiply();
@@ -34,11 +34,11 @@ int main()
 void sym()
 {
     int m;
-    printf("What is the size of the matrix: ");
+    // printf("What is the size of the matrix: ");
     scanf("%d", &m);
     int arr[m][m];
     int negative = 0;
-    printf("Please enter the matrix: ");
+    // printf("Please enter the matrix: ");
     for(int i = 0; i < m; ++i)
     {
         for(int j = 0; j < m; ++j)
@@ -64,14 +64,14 @@ void sym()
 void multiply()
 {
     int m;
-    printf("What is the size of the matrix: ");
+    // printf("What is the size of the matrix: ");
     scanf("%d", &m);
     int arr1[m][m], arr2[m][m];
-    printf("the first matrix: ");
+    // printf("the first matrix: ");
     for(int i = 0; i < m; ++i)
         for(int j = 0; j < m; ++j)
             scanf("%d", &arr1[i][j]);
-    printf("the second matrix: ");
+    // printf("the second matrix: ");
     for(int i = 0; i < m; ++i)
         for(int j = 0; j < m; ++j)
             scanf("%d", &arr2[i][j]);
