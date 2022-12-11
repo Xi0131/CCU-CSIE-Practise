@@ -20,7 +20,7 @@ void map_sys(int *money, int *booster_record, int bst_record_size)
     int m_reward, b_reward, choice;                 // temp. variable for containing reward amount, booster type and user choice
     int r_P = 0, c_P = 0, r_M, c_M, r_B, c_B;       // record position of user, money and booster
     int m_got = 0, b_got = 0;                       // variable for checking if the reward is obtained
-    char map[m_length][m_length];                   // create 
+    char map[m_length][m_length];                   // create map
     srand(time(NULL));
 
     map[0][0] = 'P'; // assign P
@@ -36,7 +36,7 @@ void map_sys(int *money, int *booster_record, int bst_record_size)
             map[i][j] = 'M';
             r_M = i;
             c_M = j;
-            m_reward = i * j * 10;
+            m_reward = (i+1) * (j+1) * 10;
             break;
         }
     }
