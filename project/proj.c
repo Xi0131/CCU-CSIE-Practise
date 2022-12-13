@@ -4,6 +4,7 @@
 #include<time.h>
 
 void map_sys(int *money, int *booster_record,int bst_record_size), show_map(const char *map, int size);
+void booster_sys(int *boost_state, int s_boost, int p_boost, int a_boost);
 void check_action(int boost_state_2, int *hotdog_record, int *earn_record, int *booster_record, int *money, int *check);
 void bonus_area(int cook_time, int price, int *boost_state, int *check);
 
@@ -24,14 +25,13 @@ int main()
     int matrix_fulled = 0;
     int choice_count = 0;
     int poison[100][100];
-    int choosen[100][100];
-    //fill poison, choosen
+    int choosen[100][100] = {0};
+    // fill poison
     for(int i = 0; i < n; ++i)
     {
         for(int j = 1; j <= n; ++j)
         {
             poison[i][j-1] = (i * n) + j;
-            choosen[i][j-1] = 0;
         }
     }
 
@@ -52,32 +52,7 @@ int main()
         }
 
         //booster
-        
-        printf("You have %d speed booster(s), %d price booster(s), %d area booster(s).\n", s_boost, p_boost, a_boost);
-        int temp = 0;
-        while(temp != 4)
-        {
-            while(1)
-            {
-                printf("Open/Close boosters: \n");
-                printf("\t[1] Speed booster (now ");
-                boost_state[0] ? printf("open)\n") : printf("close)\n");
-                printf("\t[2] Price booster (now ");
-                boost_state[1] ? printf("open)\n") : printf("close)\n");
-                printf("\t[3] Area  booster (now ");
-                boost_state[2] ? printf("open)\n") : printf("close)\n");
-                printf("\t[4] Finish\n");
-                printf("Enter the number(s): ");
-                scanf("%d", &temp);
-                if(temp < 1 || temp > 4) printf("Invalid input!!!!\n");
-                else break;
-            }
-            if(boost_state[temp-1]) boost_state[temp-1] = 0;
-            else boost_state[temp-1] = 1;
-        }
-        if(s_boost == 0) boost_state[0] = 0;
-        if(p_boost == 0) boost_state[1] = 0;
-        if(a_boost == 0) boost_state[2] = 0;
+        booster_sys(boost_state, s_boost, p_boost, a_boost);
 
         //body text intro
         {
@@ -179,7 +154,7 @@ int main()
             }
         }
         //area booster
-                int earn_here = 180 / cook_time * price;
+        int earn_here = 180 / cook_time * price;
         if(boost_state[0] == 1)
         {
             earn_here *= 2;
@@ -198,7 +173,7 @@ int main()
             hotdog_record[4] = 180 / cook_time;
             check[4] = 1;
         }
-        bonus_area(cook_time, price, boost_state, check)
+        // bonus_area(cook_time, price, boost_state, check)
         printf("Well done, you earn $%d today.\n", earn_this_round);
 
         //check action when done
@@ -457,6 +432,35 @@ int main()
     return 0;
 }
 
+void booster_sys(int *boost_state, int s_boost, int p_boost, int a_boost)
+{
+    printf("You have %d speed booster(s), %d price booster(s), %d area booster(s).\n", s_boost, p_boost, a_boost);
+    int temp = 0;
+    while(temp != 4)
+    {
+        while(1)
+        {
+            printf("Open/Close boosters: \n");
+            printf("\t[1] Speed booster (now ");
+            boost_state[0] ? printf("open)\n") : printf("close)\n");
+            printf("\t[2] Price booster (now ");
+            boost_state[1] ? printf("open)\n") : printf("close)\n");
+            printf("\t[3] Area  booster (now ");
+            boost_state[2] ? printf("open)\n") : printf("close)\n");
+            printf("\t[4] Finish\n");
+            printf("Enter the number(s): ");
+            scanf("%d", &temp);
+            if(temp < 1 || temp > 4) printf("Invalid input!!!!\n");
+            else break;
+        }
+        if(boost_state[temp-1]) boost_state[temp-1] = 0;
+        else boost_state[temp-1] = 1;
+    }
+    if(s_boost == 0) boost_state[0] = 0;
+    if(p_boost == 0) boost_state[1] = 0;
+    if(a_boost == 0) boost_state[2] = 0;
+}
+
 void map_sys(int *money, int *booster_record, int bst_record_size)
 {
     printf("Welcome to map system.\n");
@@ -698,26 +702,26 @@ void check_action(int boost_state_2, int *hotdog_record, int *earn_record, int *
     check_action(boost_state_2, hotdog_record, earn_record, booster_record, money, check);
 }
 
-void bonus_area(int cook_time, int price, int *boost_state, int *check)
-{
-    int earn_here = 180 / cook_time * price;
-    if(boost_state[0] == 1)
-    {
-        earn_here *= 2;
-        --s_boost;
-    }
-    if(boost_state[1] == 1)
-    {
-        earn_here *= 2;
-        --p_boost;
-    }
-    if(boost_state[2])
-    {
-        money += earn_here;
-        earn_this_round += earn_here;
-        earn_record[4] = earn_here;
-        hotdog_record[4] = 180 / cook_time;
-        check[4] = 1;
-    }
-    return
-}
+// void bonus_area(int cook_time, int price, int *boost_state, int *check)
+// {
+//     int earn_here = 180 / cook_time * price;
+//     if(boost_state[0] == 1)
+//     {
+//         earn_here *= 2;
+//         --s_boost;
+//     }
+//     if(boost_state[1] == 1)
+//     {
+//         earn_here *= 2;
+//         --p_boost;
+//     }
+//     if(boost_state[2])
+//     {
+//         money += earn_here;
+//         earn_this_round += earn_here;
+//         earn_record[4] = earn_here;
+//         hotdog_record[4] = 180 / cook_time;
+//         check[4] = 1;
+//     }
+//     return
+// }
