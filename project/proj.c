@@ -7,26 +7,31 @@ void map_sys(int *money, int *booster_record,int bst_record_size), show_map(cons
 void booster_sys(int *boost_state, int s_boost, int p_boost, int a_boost);
 void check_action(int boost_state_2, int *hotdog_record, int *earn_record, int *booster_record, int *money, int *check);
 void bonus_area(int cook_time, int price, int *boost_state, int *check);
+void add_booster(int *booster_record, int bst_record_size, int new_booster);
+void cal_booster(int *booster_record, int bst_record_size, int *s_boost, int *p_boost, int *a_boost);
+void deductfree_or_addcost(int *free_choice, int *choice_cost);
 
 int main()
 {
+    srand(time(NULL));
     int money = 100, cook_time = 15, price = 30, spd_cost = 50, taste_cost = 100;       // initialize money, cook time, price of hotdog, cost to upgrade cooking speed and flavour
 
-    int s_boost = 0, p_boost = 0, a_boost = 1;
-    int boost_state[3] = {0};
-    int booster_record[rand() % 10 + 6];
+    int s_boost = 0, p_boost = 0, a_boost = 0;                                          // initialize numbers of each booster
+    int boost_state[4] = {0};                                                           // initialize booster state for each round
+    int booster_record[rand() % 11 + 5];                                                // create space for records booster
+    int bst_record_size = (int) sizeof(booster_record)/sizeof(booster_record[0]);       // store the booster record size
 
-    int earn_record[5] = {0};
-    int hotdog_record[5] = {0};
-    int check[5] = {0};
+    int earn_record[5] = {0};                                                           // record money earn if selling action occurs
+    int hotdog_record[5] = {0};                                                         // record hotdog sold if selling action occurs
+    int check[5] = {0};                                                                 // record actions at each area
 
-    int again, choice;
-    int choice_cost = 500, n = 3;
-    int matrix_fulled = 0;
-    int choice_count = 0;
-    int poison[100][100];
-    int choosen[100][100] = {0};
-    // fill poison
+    int again, choice;                                                                  // create variable for lottery
+    int choice_cost = 500, n = 3;                                                       // cost of each choice if no free choice, initial size of lottery
+    int matrix_fulled = 0;                                                              // for checking if lottery is empty
+    int free_choice = 0;                                                                // store free choice
+    int poison[100][100];                                                               // store number of lottery
+    int choosen[100][100] = {0};                                                        // store state of each number in lottery
+    // fill poison, booster_record
     for(int i = 0; i < n; ++i)
     {
         for(int j = 1; j <= n; ++j)
@@ -34,16 +39,23 @@ int main()
             poison[i][j-1] = (i * n) + j;
         }
     }
+    for(int i = 0; i < bst_record_size; i++)
+    {
+        booster_record[i] = 0;
+    }
 
     printf("Welcome, young boss!\n");
-    printf("You have %d slots for booster.\n", sizeof(booster_record)/sizeof(booster_record[0]));
+    printf("You have %d slots for booster.\n", bst_record_size);
 
     next_round:
-    do{
+    while(1)
+    {
         int earn_this_round = 0;
         int action[4] = {0};
+        cal_booster(booster_record, bst_record_size, &s_boost, &p_boost, &a_boost);
 
-        //intro
+
+        // start of new day
         {
         printf("Chop chop, It's dawn.\n");
         printf("You have %d dollars.\n", money);
@@ -51,10 +63,10 @@ int main()
         printf("The price of a hotdog is $%d.\n", price);
         }
 
-        //booster
+        // booster
         booster_sys(boost_state, s_boost, p_boost, a_boost);
 
-        //body text intro
+        // explanation of actions
         {
         printf("Actions you can take for each area:\n");
         printf("\t[1] Sell the hotdogs\n");
@@ -63,6 +75,8 @@ int main()
         printf("\t[3] Improve your hotdog flavor\n");
         printf("\t    (- $%d, - $%d, - $%d, - $%d for next four upgrades)\n", taste_cost, taste_cost*2, taste_cost*4, taste_cost*8);
         }
+
+        // input
         printf("Enter the number(s): ");
         scanf("%d%d%d%d", &action[0], &action[1], &action[2], &action[3]);
         for(int i = 0; i < 4; ++i)
@@ -80,7 +94,7 @@ int main()
             }
         }
 
-        //body
+        // body
         int area = 0;
         while(area < 4)
         {
@@ -153,7 +167,8 @@ int main()
                     }
             }
         }
-        //area booster
+        
+        // area booster
         int earn_here = 180 / cook_time * price;
         if(boost_state[0] == 1)
         {
@@ -179,7 +194,7 @@ int main()
         //check action when done
         check_action(boost_state[2], hotdog_record, earn_record, booster_record, &money, check);
 
-        //continue?
+        // continue?
         while(1)
         {
             printf("Do you want to continue or exit?\n");
@@ -194,14 +209,14 @@ int main()
         }
         if(again == 2) break;
         
-        //loterry
+        // loterry
         while(1)
         {
             printf("You get one free choice.\n");
-            ++choice_count;
-            do
+            ++free_choice;
+            while(1)
             {
-                //check if fulled
+                // check if fulled
                 for(int i = 0; i < n; ++i)
                 {
                     for(int j = 0; j < n; ++j)
@@ -228,17 +243,17 @@ int main()
                         }
                     }
                 }
-                //DRAW MATRIX
+                // draw matrix
                 int z = n*n, size_max_n = 0;
                 int row = 0;
-                //calculate digits of n*n
+                // calculate digits of n*n
                 while(z != 0)
                 {
                     z /= 10;
                     size_max_n++;
                 }
                 int width = size_max_n + 2;
-                //print matrix
+                // print matrix
                 for(int i = 0; i < n; ++i)
                 {
                     //print sides
@@ -279,70 +294,64 @@ int main()
                     }printf("|\n");
                     ++row;
                 }
-                //print last row
+                // print last row
                 for(int i = 0; i < n; ++i)
                 {
                     printf("+");
                     for(int j = 0; j < width; ++j) printf("-");
                 }printf("+\n");
 
-                //DO LOTTERY
-                //input and check invalid
+                // DO LOTTERY
+                // input and check invalid
                 printf("You can choose\n");
-                if(choice_count != 0) printf("\t[number on cell] to open (- $0)\n");
+                if(free_choice != 0) printf("\t[number on cell] to open (- $0)\n");
                 else printf("\t[number on cell] to open (- $%d)\n", choice_cost);
                 printf("\t[0] to continue the game\n");
                 printf("Enter the number(s): ");
                 scanf("%d", &choice);
-                if(choice < 0 || choice > n*n)
+                if(choice < 0 || choice > n*n)                      // check invalid if out of range
                 {
                     printf("Invalid input!!!!\n");
                     continue;
                 }
                 if(choice == 0) goto next_round;
-                //find position
+                // find position
                 int a = ((choice-1) / n);
                 int b = ((choice-1) % n);
-                if(choosen[a][b] == -1)
+                if(choosen[a][b] == -1)                             // check invalid if choosen
                 {
                     printf("Invalid input!!!!\n");
                     continue;
                 }
-                else if(choice_count == 0)
+                else if(free_choice == 0 && money < choice_cost)    // check if no money and no free choice
                 {
-                    if(money < choice_cost)
-                    {
-                        printf("You have no money!\n");
-                        goto next_round;
-                        break;
-                    }
-                    else money -= choice_cost;
+                    printf("You have no money!\n");
+                    goto next_round;
+                    break;
                 }
+                else money -= choice_cost;
                 here:
                 choosen[a][b] = -1;
 
-                //find prize_type
+                // find prize_type
                 srand(time(NULL));
                 int prize_type = rand() % 9 + 1;
 
-                //mechanism
+                // prize mechanism
                 switch(prize_type)
                 {
                     case 1:
                         money += 100 * price;
                         printf("Fortune, fortune! You get $%d!\n", 100 * price);
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         break;
                     case 2:
                         printf("You get an extra choice!\n");
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
-                        ++choice_count;
+                        deductfree_or_addcost(&free_choice, &choice_cost);
+                        ++free_choice;
                         break;
                     case 3:
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         a -= 1;
                         if(a == -1) a = n-1;
                         if(choosen[a][b] == -1)
@@ -353,12 +362,11 @@ int main()
                         else
                         {
                             printf("Another open on %d!\n", poison[a][b]);
-                            ++choice_count;
+                            ++free_choice;
                             goto here;
                         }
                     case 4:
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         a += 1;
                         if(a == n) a = 0;
                         if(choosen[a][b] == -1)
@@ -369,12 +377,11 @@ int main()
                         else
                         {
                             printf("Another open on %d!\n", poison[a][b]);
-                            ++choice_count;
+                            ++free_choice;
                             goto here;
                         }
                     case 5:
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         b -= 1;
                         if(b == -1) b = n-1;
                         if(choosen[a][b] == -1)
@@ -385,12 +392,11 @@ int main()
                         else
                         {
                             printf("Another open on %d!\n", poison[a][b]);
-                            ++choice_count;
+                            ++free_choice;
                             goto here;
                         }
                     case 6:
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         b += 1;
                         if(b == n) b = 0;
                         if(choosen[a][b] == -1)
@@ -401,32 +407,28 @@ int main()
                         else
                         {
                             printf("Another open on %d!\n", poison[a][b]);
-                            ++choice_count;
+                            ++free_choice;
                             goto here;
                         }
                     case 7:
-                        s_boost++;
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        add_booster(booster_record, bst_record_size, 1);
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         printf("You get a booster!!\n");
                         break;
                     case 8:
-                        p_boost++;
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        add_booster(booster_record, bst_record_size, 2);
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         printf("You get a booster!!\n");
                         break;
                     case 9:
-                        a_boost++;
-                        if(choice_count == 0) choice_cost += 500;
-                        else --choice_count;
+                        add_booster(booster_record, bst_record_size, 3);
+                        deductfree_or_addcost(&free_choice, &choice_cost);
                         printf("You get a booster!!\n");
                         break;
                 };
-            }while(1);
+            }
         }
-
-    }while(1);
+    }
     printf("We will miss you. Bye!\n");
     
     return 0;
@@ -492,7 +494,7 @@ void map_sys(int *money, int *booster_record, int bst_record_size)
     {
         int i = rand() % m_length;
         int j = rand() % m_length;
-        if(map[i][j] != 'M' || map[i][j] != 'P')
+        if(map[i][j] != 'M' && map[i][j] != 'P')
         {
             map[i][j] = 'B';
             r_B = i;
@@ -725,3 +727,286 @@ void check_action(int boost_state_2, int *hotdog_record, int *earn_record, int *
 //     }
 //     return
 // }
+
+// void lottery(int *free_choice, int *choosen, int *poison, int *n, int *choice_cost, int *money, int *price, int *booster_record)
+// {
+//     int matrix_fulled = 0;
+//     int choice;
+//     while(1)
+//     {
+//         printf("You get one free choice.\n");
+//         ++*free_choice;
+//         while(1)
+//         {
+//             //check if fulled
+//             for(int i = 0; i < *n; ++i)
+//             {
+//                 for(int j = 0; j < *n; ++j)
+//                 {
+//                     if(*(choosen + i * (*n) + j) == 0)
+//                     {
+//                         matrix_fulled = 0;
+//                         break;
+//                     }
+//                     else matrix_fulled = 1;
+//                 }
+//             }
+//             if(matrix_fulled)
+//             {
+//                 *choice_cost = 500;
+//                 n += 2;
+//                 //fill matrix
+//                 for(int i = 0; i < n; ++i)
+//                 {
+//                     for(int j = 1; j <= n; ++j)
+//                     {
+//                         *(poison + i * (*n) +j - 1) = (i * (*n) + j);
+//                         *(choosen + i * (*n) +j - 1) = 0;
+//                     }
+//                 }
+//             }
+//             //DRAW MATRIX
+//             int z = ((*n) * (*n)), size_max_n = 0;
+//             int row = 0;
+//             //calculate digits of n*n
+//             while(z != 0)
+//             {
+//                 z /= 10;
+//                 size_max_n++;
+//             }
+//             int width = size_max_n + 2;
+//             //print matrix
+//             for(int i = 0; i < *n; ++i)
+//             {
+//                 //print sides
+//                 for(int j = 0; j < *n; ++j)
+//                 {
+//                     printf("+");
+//                     for(int k = 0; k < width; ++k) printf("-");
+//                 }printf("+\n");
+//                 //print numbers
+//                 for(int j = 0; j < n; ++j)
+//                 {
+//                     printf("| ");
+//                     if(*(poison + row * (*n) + j) < pow(10, (size_max_n-1)))
+//                     {
+//                         int digit = 0, t = *(poison + row * (*n) + j);
+//                         while(t != 0)
+//                         {
+//                             t /= 10;
+//                             ++digit;
+//                         }
+//                         for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
+//                     }
+//                     if(*(choosen + row * (*n) + j) == -1)
+//                     {
+//                         if(*(poison + row * (*n) + j) >= pow(10, (size_max_n-1)))
+//                         {
+//                             int digit = 0, t = 1;
+//                             while(t != 0)
+//                             {
+//                                 t /= 10;
+//                                 ++digit;
+//                             }
+//                             for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
+//                         }
+//                         printf("x ");
+//                     }
+//                     else printf("%d ", *(poison + row * (*n) + j));
+//                 }printf("|\n");
+//                 ++row;
+//             }
+//             //print last row
+//             for(int i = 0; i < n; ++i)
+//             {
+//                 printf("+");
+//                 for(int j = 0; j < width; ++j) printf("-");
+//             }printf("+\n");
+
+//             //DO LOTTERY
+//             //input and check invalid
+//             printf("You can choose\n");
+//             if(free_choice != 0) printf("\t[number on cell] to open (- $0)\n");
+//             else printf("\t[number on cell] to open (- $%d)\n", *choice_cost);
+//             printf("\t[0] to continue the game\n");
+//             printf("Enter the number(s): ");
+//             scanf("%d", &choice);
+//             if(choice < 0 || choice > (*n) * (*n))
+//             {
+//                 printf("Invalid input!!!!\n");
+//                 continue;
+//             }
+//             if(choice == 0) goto next_round;
+//             //find position
+//             int a = ((choice-1) / *n);
+//             int b = ((choice-1) % *n);
+//             if(*(choosen + a * (*n) + b) == -1)
+//             {
+//                 printf("Invalid input!!!!\n");
+//                 continue;
+//             }
+//             else if(free_choice == 0)
+//             {
+//                 if(*money < *choice_cost)
+//                 {
+//                     printf("You have no money!\n");
+//                     goto next_round;
+//                     break;
+//                 }
+//                 else *money -= *choice_cost;
+//             }
+//             here:
+//             *(choosen + a * (*n) + b) = -1;
+
+//             //find prize_type
+//             srand(time(NULL));
+//             int prize_type = rand() % 9 + 1;
+
+//             //mechanism
+//             switch(prize_type)
+//             {
+//                 case 1:
+//                     *money += 100 * (*price);
+//                     printf("Fortune, fortune! You get $%d!\n", 100 * (*price));
+//                     if(*free_choice == 0) *choice_cost += 500;
+//                     else --*free_choice;
+//                     break;
+//                 case 2:
+//                     printf("You get an extra choice!\n");
+//                     if(*free_choice == 0) *choice_cost += 500;
+//                     else --*free_choice;
+//                     ++*free_choice;
+//                     break;
+//                 case 3:
+//                     if(*free_choice == 0) *choice_cost += 500;
+//                     else --*free_choice;
+//                     a -= 1;
+//                     if(a == -1) a = n-1;
+//                     if(*(choosen + a * (*n) + b) == -1)
+//                     {
+//                         printf("Bad Luck :(\n");
+//                         break;
+//                     }
+//                     else
+//                     {
+//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
+//                         ++*free_choice;
+//                         goto here;
+//                     }
+//                 case 4:
+//                     if(*free_choice == 0) *choice_cost += 500;
+//                     else --*free_choice;
+//                     a += 1;
+//                     if(a == n) a = 0;
+//                     if(*(choosen + a * (*n) + b) == -1)
+//                     {
+//                         printf("Bad Luck :(\n");
+//                         break;
+//                     }
+//                     else
+//                     {
+//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
+//                         ++*free_choice;
+//                         goto here;
+//                     }
+//                 case 5:
+//                     if(*free_choice == 0) *choice_cost += 500;
+//                     else --*free_choice;
+//                     b -= 1;
+//                     if(b == -1) b = n-1;
+//                     if(*(choosen + a * (*n) + b) == -1)
+//                     {
+//                         printf("Bad Luck :(\n");
+//                         break;
+//                     }
+//                     else
+//                     {
+//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
+//                         ++*free_choice;
+//                         goto here;
+//                     }
+//                 case 6:
+//                     if(*free_choice == 0) choice_cost += 500;
+//                     else --*free_choice;
+//                     b += 1;
+//                     if(b == n) b = 0;
+//                     if(*(choosen + a * (*n) + b) == -1)
+//                     {
+//                         printf("Bad Luck :(\n");
+//                         break;
+//                     }
+//                     else
+//                     {
+//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
+//                         ++*free_choice;
+//                         goto here;
+//                     }
+//                 case 7:
+//                     add_booster(booster_record, *n, 1);
+//                     if(*free_choice == 0) choice_cost += 500;
+//                     else --*free_choice;
+//                     printf("You get a booster!!\n");
+//                     break;
+//                 case 8:
+//                     p_boost++;
+//                     if(*free_choice == 0) choice_cost += 500;
+//                     else --free_choice;
+//                     printf("You get a booster!!\n");
+//                     break;
+//                 case 9:
+//                     a_boost++;
+//                     if(*free_choice == 0) choice_cost += 500;
+//                     else --*free_choice;
+//                     printf("You get a booster!!\n");
+//                     break;
+//             };
+//         }
+//     }
+// }
+
+void add_booster(int *booster_record, int bst_record_size, int new_booster)
+{
+    int pos;
+    for(int i = 0; i < bst_record_size; i++)
+    {
+        // if array is not full
+        if(booster_record[i] == 0)
+        {
+            pos = i;
+            break;
+        }
+
+        // if array is fulled
+        for(int j = 0; j < bst_record_size - 2; j++)
+        {
+            booster_record[j] = booster_record[j + 1];
+        }
+        pos = bst_record_size - 1;
+    }
+    booster_record[pos] = new_booster;
+}
+
+void cal_booster(int *booster_record, int bst_record_size, int *s_boost, int *p_boost, int *a_boost)
+{
+    for(int i = 0; i < bst_record_size; i++)
+    {
+        if(booster_record[i] == 1)
+        {
+            ++*s_boost;
+        }
+        else if(booster_record[i] == 2)
+        {
+            ++*p_boost;
+        }
+        else if(booster_record[i] == 3)
+        {
+            ++*a_boost;
+        }
+    }
+}
+
+void deductfree_or_addcost(int *free_choice, int *choice_cost)
+{
+    if(*free_choice == 0) *choice_cost += 500;
+    else --*free_choice;
+}

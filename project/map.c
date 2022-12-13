@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<time.h>
 
-void map_sys(int *money, int *booster_record,int bst_record_size), show_map(const char *map, int size);
+void map_sys(int *money, int *booster_record,int bst_record_size), show_map(const char *map, int size), add_booster(int *booster_record, int bst_record_size, int new_booster);
 
 int main()
 {
@@ -143,24 +143,7 @@ void map_sys(int *money, int *booster_record, int bst_record_size)
         }
         else if(r_P == r_B && c_P == c_B)
         {
-            int pos;
-            for(int i = 0; i < bst_record_size; i++)
-            {
-                // if array is not full
-                if(booster_record[i] == 0)
-                {
-                    pos = i;
-                    break;
-                }
-
-                // if array is fulled
-                for(int j = 0; j < bst_record_size - 2; j++)
-                {
-                    booster_record[j] = booster_record[j + 1];
-                }
-                pos = bst_record_size - 1;
-            }
-            booster_record[pos] = b_reward;
+            add_booster(booster_record, bst_record_size, b_reward);
             b_got = 1;
 
             // show booster
@@ -199,4 +182,26 @@ void show_map(const char *map, int size)
         }
         printf("\n");
     }
+}
+
+void add_booster(int *booster_record, int bst_record_size, int new_booster)
+{
+    int pos;
+    for(int i = 0; i < bst_record_size; i++)
+    {
+        // if array is not full
+        if(booster_record[i] == 0)
+        {
+            pos = i;
+            break;
+        }
+
+        // if array is fulled
+        for(int j = 0; j < bst_record_size - 2; j++)
+        {
+            booster_record[j] = booster_record[j + 1];
+        }
+        pos = bst_record_size - 1;
+    }
+    booster_record[pos] = new_booster;
 }
