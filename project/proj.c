@@ -7,9 +7,10 @@ void map_sys(int *money, int *booster_record,int bst_record_size), show_map(cons
 void booster_sys(int *boost_state, int s_boost, int p_boost, int a_boost);
 void check_action(int boost_state_2, int *hotdog_record, int *earn_record, int *booster_record, int *money, int *check);
 void bonus_area(int cook_time, int price, int *boost_state, int *check);
-void add_booster(int *booster_record, int bst_record_size, int new_booster);
+void add_booster(int *booster_record, int *bst_record_size, int new_booster);
 void cal_booster(int *booster_record, int bst_record_size, int *s_boost, int *p_boost, int *a_boost);
 void deductfree_or_addcost(int *free_choice, int *choice_cost);
+void lottery(int *free_choice, int *lot_size, int *matrix_fulled, int *choice_cost, int *money, int *price, int *choosen, int *poison, int *booster_record, int *bst_record_size);
 
 int main()
 {
@@ -26,17 +27,17 @@ int main()
     int check[5] = {0};                                                                 // record actions at each area
 
     int again, choice;                                                                  // create variable for lottery
-    int choice_cost = 500, n = 3;                                                       // cost of each choice if no free choice, initial size of lottery
+    int choice_cost = 500, lot_size = 3;                                                // cost of each choice if no free choice, initial size of lottery
     int matrix_fulled = 0;                                                              // for checking if lottery is empty
     int free_choice = 0;                                                                // store free choice
     int poison[100][100];                                                               // store number of lottery
     int choosen[100][100] = {0};                                                        // store state of each number in lottery
     // fill poison, booster_record
-    for(int i = 0; i < n; ++i)
+    for(int i = 0; i < lot_size; ++i)
     {
-        for(int j = 1; j <= n; ++j)
+        for(int j = 1; j <= lot_size; ++j)
         {
-            poison[i][j-1] = (i * n) + j;
+            poison[i][j-1] = (i * lot_size) + j;
         }
     }
     for(int i = 0; i < bst_record_size; i++)
@@ -210,224 +211,222 @@ int main()
         if(again == 2) break;
         
         // loterry
-        while(1)
-        {
-            printf("You get one free choice.\n");
-            ++free_choice;
-            while(1)
-            {
-                // check if fulled
-                for(int i = 0; i < n; ++i)
-                {
-                    for(int j = 0; j < n; ++j)
-                    {
-                        if(choosen[i][j] == 0)
-                        {
-                            matrix_fulled = 0;
-                            break;
-                        }
-                        else matrix_fulled = 1;
-                    }
-                }
-                if(matrix_fulled)
-                {
-                    choice_cost = 500;
-                    n += 2;
-                    //fill matrix
-                    for(int i = 0; i < n; ++i)
-                    {
-                        for(int j = 1; j <= n; ++j)
-                        {
-                            poison[i][j-1] = (i * n) + j;
-                            choosen[i][j-1] = 0;
-                        }
-                    }
-                }
-                // draw matrix
-                int z = n*n, size_max_n = 0;
-                int row = 0;
-                // calculate digits of n*n
-                while(z != 0)
-                {
-                    z /= 10;
-                    size_max_n++;
-                }
-                int width = size_max_n + 2;
-                // print matrix
-                for(int i = 0; i < n; ++i)
-                {
-                    //print sides
-                    for(int j = 0; j < n; ++j)
-                    {
-                        printf("+");
-                        for(int k = 0; k < width; ++k) printf("-");
-                    }printf("+\n");
-                    //print numbers
-                    for(int j = 0; j < n; ++j)
-                    {
-                        printf("| ");
-                        if(poison[row][j] < pow(10, (size_max_n-1)))
-                        {
-                            int digit = 0, t = poison[row][j];
-                            while(t != 0)
-                            {
-                                t /= 10;
-                                ++digit;
-                            }
-                            for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
-                        }
-                        if(choosen[row][j] == -1)
-                        {
-                            if(poison[row][j] >= pow(10, (size_max_n-1)))
-                            {
-                                int digit = 0, t = 1;
-                                while(t != 0)
-                                {
-                                    t /= 10;
-                                    ++digit;
-                                }
-                                for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
-                            }
-                            printf("x ");
-                        }
-                        else printf("%d ", poison[row][j]);
-                    }printf("|\n");
-                    ++row;
-                }
-                // print last row
-                for(int i = 0; i < n; ++i)
-                {
-                    printf("+");
-                    for(int j = 0; j < width; ++j) printf("-");
-                }printf("+\n");
+        lottery(&free_choice, &lot_size, &matrix_fulled, &choice_cost, &money, &price, choosen, poison, booster_record, &bst_record_size);
+        // printf("You get one free choice.\n");
+        // ++free_choice;
+        // while(1)
+        // {
+        //     // check if fulled
+        //     for(int i = 0; i < lot_size; ++i)
+        //     {
+        //         for(int j = 0; j < lot_size; ++j)
+        //         {
+        //             if(choosen[i][j] == 0)
+        //             {
+        //                 matrix_fulled = 0;
+        //                 break;
+        //             }
+        //             else matrix_fulled = 1;
+        //         }
+        //     }
+        //     if(matrix_fulled)
+        //     {
+        //         choice_cost = 500;
+        //         lot_size += 2;
+        //         //fill matrix
+        //         for(int i = 0; i < lot_size; ++i)
+        //         {
+        //             for(int j = 1; j <= lot_size; ++j)
+        //             {
+        //                 poison[i][j-1] = (i * lot_size) + j;
+        //                 choosen[i][j-1] = 0;
+        //             }
+        //         }
+        //     }
+        //     // draw matrix
+        //     int z = lot_size*lot_size, size_max_n = 0;
+        //     int row = 0;
+        //     // calculate digits of lot_size*lot_size
+        //     while(z != 0)
+        //     {
+        //         z /= 10;
+        //         size_max_n++;
+        //     }
+        //     int width = size_max_n + 2;
+        //     // print matrix
+        //     for(int i = 0; i < lot_size; ++i)
+        //     {
+        //         //print sides
+        //         for(int j = 0; j < lot_size; ++j)
+        //         {
+        //             printf("+");
+        //             for(int k = 0; k < width; ++k) printf("-");
+        //         }printf("+\n");
+        //         //print numbers
+        //         for(int j = 0; j < lot_size; ++j)
+        //         {
+        //             printf("| ");
+        //             if(poison[row][j] < pow(10, (size_max_n-1)))
+        //             {
+        //                 int digit = 0, t = poison[row][j];
+        //                 while(t != 0)
+        //                 {
+        //                     t /= 10;
+        //                     ++digit;
+        //                 }
+        //                 for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
+        //             }
+        //             if(choosen[row][j] == -1)
+        //             {
+        //                 if(poison[row][j] >= pow(10, (size_max_n-1)))
+        //                 {
+        //                     int digit = 0, t = 1;
+        //                     while(t != 0)
+        //                     {
+        //                         t /= 10;
+        //                         ++digit;
+        //                     }
+        //                     for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
+        //                 }
+        //                 printf("x ");
+        //             }
+        //             else printf("%d ", poison[row][j]);
+        //         }printf("|\n");
+        //         ++row;
+        //     }
+        //     // print last row
+        //     for(int i = 0; i < lot_size; ++i)
+        //     {
+        //         printf("+");
+        //         for(int j = 0; j < width; ++j) printf("-");
+        //     }printf("+\n");
 
-                // DO LOTTERY
-                // input and check invalid
-                printf("You can choose\n");
-                if(free_choice != 0) printf("\t[number on cell] to open (- $0)\n");
-                else printf("\t[number on cell] to open (- $%d)\n", choice_cost);
-                printf("\t[0] to continue the game\n");
-                printf("Enter the number(s): ");
-                scanf("%d", &choice);
-                if(choice < 0 || choice > n*n)                      // check invalid if out of range
-                {
-                    printf("Invalid input!!!!\n");
-                    continue;
-                }
-                if(choice == 0) goto next_round;
-                // find position
-                int a = ((choice-1) / n);
-                int b = ((choice-1) % n);
-                if(choosen[a][b] == -1)                             // check invalid if choosen
-                {
-                    printf("Invalid input!!!!\n");
-                    continue;
-                }
-                else if(free_choice == 0 && money < choice_cost)    // check if no money and no free choice
-                {
-                    printf("You have no money!\n");
-                    goto next_round;
-                    break;
-                }
-                else money -= choice_cost;
-                here:
-                choosen[a][b] = -1;
+        //     // DO LOTTERY
+        //     // input and check invalid
+        //     printf("You can choose\n");
+        //     if(free_choice != 0) printf("\t[number on cell] to open (- $0)\n");
+        //     else printf("\t[number on cell] to open (- $%d)\n", choice_cost);
+        //     printf("\t[0] to continue the game\n");
+        //     printf("Enter the number(s): ");
+        //     scanf("%d", &choice);
+        //     if(choice < 0 || choice > lot_size*lot_size)                      // check invalid if out of range
+        //     {
+        //         printf("Invalid input!!!!\n");
+        //         continue;
+        //     }
+        //     if(choice == 0) goto next_round;
+        //     // find position
+        //     int a = ((choice-1) / lot_size);
+        //     int b = ((choice-1) % lot_size);
+        //     if(choosen[a][b] == -1)                             // check invalid if choosen
+        //     {
+        //         printf("Invalid input!!!!\n");
+        //         continue;
+        //     }
+        //     else if(free_choice == 0 && money < choice_cost)    // check if no money and no free choice
+        //     {
+        //         printf("You have no money!\n");
+        //         goto next_round;
+        //         break;
+        //     }
+        //     else money -= choice_cost;
+        //     here:
+        //     choosen[a][b] = -1;
 
-                // find prize_type
-                srand(time(NULL));
-                int prize_type = rand() % 9 + 1;
+        //     // find prize_type
+        //     srand(time(NULL));
+        //     int prize_type = rand() % 9 + 1;
 
-                // prize mechanism
-                switch(prize_type)
-                {
-                    case 1:
-                        money += 100 * price;
-                        printf("Fortune, fortune! You get $%d!\n", 100 * price);
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        break;
-                    case 2:
-                        printf("You get an extra choice!\n");
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        ++free_choice;
-                        break;
-                    case 3:
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        a -= 1;
-                        if(a == -1) a = n-1;
-                        if(choosen[a][b] == -1)
-                        {
-                            printf("Bad Luck :(\n");
-                            break;
-                        }
-                        else
-                        {
-                            printf("Another open on %d!\n", poison[a][b]);
-                            ++free_choice;
-                            goto here;
-                        }
-                    case 4:
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        a += 1;
-                        if(a == n) a = 0;
-                        if(choosen[a][b] == -1)
-                        {
-                            printf("Bad Luck :(\n");
-                            break;
-                        }
-                        else
-                        {
-                            printf("Another open on %d!\n", poison[a][b]);
-                            ++free_choice;
-                            goto here;
-                        }
-                    case 5:
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        b -= 1;
-                        if(b == -1) b = n-1;
-                        if(choosen[a][b] == -1)
-                        {
-                            printf("Bad Luck :(\n");
-                            break;
-                        }
-                        else
-                        {
-                            printf("Another open on %d!\n", poison[a][b]);
-                            ++free_choice;
-                            goto here;
-                        }
-                    case 6:
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        b += 1;
-                        if(b == n) b = 0;
-                        if(choosen[a][b] == -1)
-                        {
-                            printf("Bad Luck :(\n");
-                            break;
-                        }
-                        else
-                        {
-                            printf("Another open on %d!\n", poison[a][b]);
-                            ++free_choice;
-                            goto here;
-                        }
-                    case 7:
-                        add_booster(booster_record, bst_record_size, 1);
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        printf("You get a booster!!\n");
-                        break;
-                    case 8:
-                        add_booster(booster_record, bst_record_size, 2);
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        printf("You get a booster!!\n");
-                        break;
-                    case 9:
-                        add_booster(booster_record, bst_record_size, 3);
-                        deductfree_or_addcost(&free_choice, &choice_cost);
-                        printf("You get a booster!!\n");
-                        break;
-                };
-            }
-        }
+        //     // prize mechanism
+        //     switch(prize_type)
+        //         {
+        //             case 1:
+        //                 money += 100 * price;
+        //                 printf("Fortune, fortune! You get $%d!\n", 100 * price);
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 break;
+        //             case 2:
+        //                 printf("You get an extra choice!\n");
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 ++free_choice;
+        //                 break;
+        //             case 3:
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 a -= 1;
+        //                 if(a == -1) a = lot_size-1;
+        //                 if(choosen[a][b] == -1)
+        //                 {
+        //                     printf("Bad Luck :(\n");
+        //                     break;
+        //                 }
+        //                 else
+        //                 {
+        //                     printf("Another open on %d!\n", poison[a][b]);
+        //                     ++free_choice;
+        //                     goto here;
+        //                 }
+        //             case 4:
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 a += 1;
+        //                 if(a == lot_size) a = 0;
+        //                 if(choosen[a][b] == -1)
+        //                 {
+        //                     printf("Bad Luck :(\n");
+        //                     break;
+        //                 }
+        //                 else
+        //                 {
+        //                     printf("Another open on %d!\n", poison[a][b]);
+        //                     ++free_choice;
+        //                     goto here;
+        //                 }
+        //             case 5:
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 b -= 1;
+        //                 if(b == -1) b = lot_size-1;
+        //                 if(choosen[a][b] == -1)
+        //                 {
+        //                     printf("Bad Luck :(\n");
+        //                     break;
+        //                 }
+        //                 else
+        //                 {
+        //                     printf("Another open on %d!\n", poison[a][b]);
+        //                     ++free_choice;
+        //                     goto here;
+        //                 }
+        //             case 6:
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 b += 1;
+        //                 if(b == lot_size) b = 0;
+        //                 if(choosen[a][b] == -1)
+        //                 {
+        //                     printf("Bad Luck :(\n");
+        //                     break;
+        //                 }
+        //                 else
+        //                 {
+        //                     printf("Another open on %d!\n", poison[a][b]);
+        //                     ++free_choice;
+        //                     goto here;
+        //                 }
+        //             case 7:
+        //                 add_booster(booster_record, bst_record_size, 1);
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 printf("You get a booster!!\n");
+        //                 break;
+        //             case 8:
+        //                 add_booster(booster_record, bst_record_size, 2);
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 printf("You get a booster!!\n");
+        //                 break;
+        //             case 9:
+        //                 add_booster(booster_record, bst_record_size, 3);
+        //                 deductfree_or_addcost(&free_choice, &choice_cost);
+        //                 printf("You get a booster!!\n");
+        //                 break;
+        //         };
+        // }
     }
     printf("We will miss you. Bye!\n");
     
@@ -728,246 +727,229 @@ void check_action(int boost_state_2, int *hotdog_record, int *earn_record, int *
 //     return
 // }
 
-// void lottery(int *free_choice, int *choosen, int *poison, int *n, int *choice_cost, int *money, int *price, int *booster_record)
-// {
-//     int matrix_fulled = 0;
-//     int choice;
-//     while(1)
-//     {
-//         printf("You get one free choice.\n");
-//         ++*free_choice;
-//         while(1)
-//         {
-//             //check if fulled
-//             for(int i = 0; i < *n; ++i)
-//             {
-//                 for(int j = 0; j < *n; ++j)
-//                 {
-//                     if(*(choosen + i * (*n) + j) == 0)
-//                     {
-//                         matrix_fulled = 0;
-//                         break;
-//                     }
-//                     else matrix_fulled = 1;
-//                 }
-//             }
-//             if(matrix_fulled)
-//             {
-//                 *choice_cost = 500;
-//                 n += 2;
-//                 //fill matrix
-//                 for(int i = 0; i < n; ++i)
-//                 {
-//                     for(int j = 1; j <= n; ++j)
-//                     {
-//                         *(poison + i * (*n) +j - 1) = (i * (*n) + j);
-//                         *(choosen + i * (*n) +j - 1) = 0;
-//                     }
-//                 }
-//             }
-//             //DRAW MATRIX
-//             int z = ((*n) * (*n)), size_max_n = 0;
-//             int row = 0;
-//             //calculate digits of n*n
-//             while(z != 0)
-//             {
-//                 z /= 10;
-//                 size_max_n++;
-//             }
-//             int width = size_max_n + 2;
-//             //print matrix
-//             for(int i = 0; i < *n; ++i)
-//             {
-//                 //print sides
-//                 for(int j = 0; j < *n; ++j)
-//                 {
-//                     printf("+");
-//                     for(int k = 0; k < width; ++k) printf("-");
-//                 }printf("+\n");
-//                 //print numbers
-//                 for(int j = 0; j < n; ++j)
-//                 {
-//                     printf("| ");
-//                     if(*(poison + row * (*n) + j) < pow(10, (size_max_n-1)))
-//                     {
-//                         int digit = 0, t = *(poison + row * (*n) + j);
-//                         while(t != 0)
-//                         {
-//                             t /= 10;
-//                             ++digit;
-//                         }
-//                         for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
-//                     }
-//                     if(*(choosen + row * (*n) + j) == -1)
-//                     {
-//                         if(*(poison + row * (*n) + j) >= pow(10, (size_max_n-1)))
-//                         {
-//                             int digit = 0, t = 1;
-//                             while(t != 0)
-//                             {
-//                                 t /= 10;
-//                                 ++digit;
-//                             }
-//                             for(int k = 0; k < (size_max_n-digit); ++k) printf(" ");
-//                         }
-//                         printf("x ");
-//                     }
-//                     else printf("%d ", *(poison + row * (*n) + j));
-//                 }printf("|\n");
-//                 ++row;
-//             }
-//             //print last row
-//             for(int i = 0; i < n; ++i)
-//             {
-//                 printf("+");
-//                 for(int j = 0; j < width; ++j) printf("-");
-//             }printf("+\n");
+void lottery(int *free_choice, int *lot_size, int *matrix_fulled, int *choice_cost, int *money, int *price, int *choosen, int *poison, int *booster_record, int *bst_record_size)
+{
+    int choice;
+    printf("You get one free choice.\n");
+    ++*free_choice;
+    while(1)
+    {
+        // check if fulled
+        for(int i = 0; i < *lot_size; ++i)
+        {
+            for(int j = 0; j < *lot_size; ++j)
+            {
+                if(*(choosen + i * (*lot_size) + j) == 0)
+                {
+                    *matrix_fulled = 0;
+                    break;
+                }
+                else *matrix_fulled = 1;
+            }
+        }
+        if(*matrix_fulled)
+        {
+            *choice_cost = 500;
+            *lot_size += 2;
+            //fill matrix
+            for(int i = 0; i < *lot_size; ++i)
+            {
+                for(int j = 1; j <= *lot_size; ++j)
+                {
+                    *(poison + i * (*lot_size) + j - 1) = (i * (*lot_size)) + j;
+                    *(choosen + i * (*lot_size) + j - 1) = 0;
+                }
+            }
+        }
+        // draw matrix
+        int z = (*lot_size)*(*lot_size), size_max_n = 0;
+        int row = 0;
+        // calculate digits of lot_size*lot_size
+        while(z != 0)
+        {
+            z /= 10;
+            size_max_n++;
+        }
+        int width = size_max_n + 2;
+        // print matrix
+        for(int i = 0; i < *lot_size; ++i)
+        {
+            //print sides
+            for(int j = 0; j < *lot_size; ++j)
+            {
+                printf("+");
+                for(int k = 0; k < width; ++k) printf("-");
+            }printf("+\n");
+            //print numbers
+            for(int j = 0; j < *lot_size; ++j)
+            {
+                printf("| ");
+                if(*(poison + row * (*lot_size) + j) < pow(10, (size_max_n-1)))
+                {
+                    int digit = 0, t = *(poison + row * (*lot_size) + j);
+                    while(t != 0)
+                    {
+                        t /= 10;
+                        ++digit;
+                    }
+                    for(int k = 0; k < (size_max_n - digit); ++k) printf(" ");
+                }
+                if(*(choosen + row * (*lot_size) + j) == -1)
+                {
+                    if(*(poison + row * (*lot_size) + j) >= pow(10, (size_max_n - 1)))
+                    {
+                        int digit = 0, t = 1;
+                        while(t != 0)
+                        {
+                            t /= 10;
+                            ++digit;
+                        }
+                        for(int k = 0; k < (size_max_n - digit); ++k) printf(" ");
+                    }
+                    printf("x ");
+                }
+                else printf("%d ", *(poison + row * (*lot_size) + j));
+            }printf("|\n");
+            ++row;
+        }
+        // print last row
+        for(int i = 0; i < *lot_size; ++i)
+        {
+            printf("+");
+            for(int j = 0; j < width; ++j) printf("-");
+        }printf("+\n");
 
-//             //DO LOTTERY
-//             //input and check invalid
-//             printf("You can choose\n");
-//             if(free_choice != 0) printf("\t[number on cell] to open (- $0)\n");
-//             else printf("\t[number on cell] to open (- $%d)\n", *choice_cost);
-//             printf("\t[0] to continue the game\n");
-//             printf("Enter the number(s): ");
-//             scanf("%d", &choice);
-//             if(choice < 0 || choice > (*n) * (*n))
-//             {
-//                 printf("Invalid input!!!!\n");
-//                 continue;
-//             }
-//             if(choice == 0) goto next_round;
-//             //find position
-//             int a = ((choice-1) / *n);
-//             int b = ((choice-1) % *n);
-//             if(*(choosen + a * (*n) + b) == -1)
-//             {
-//                 printf("Invalid input!!!!\n");
-//                 continue;
-//             }
-//             else if(free_choice == 0)
-//             {
-//                 if(*money < *choice_cost)
-//                 {
-//                     printf("You have no money!\n");
-//                     goto next_round;
-//                     break;
-//                 }
-//                 else *money -= *choice_cost;
-//             }
-//             here:
-//             *(choosen + a * (*n) + b) = -1;
+        // DO LOTTERY
+        // input and check invalid
+        printf("You can choose\n");
+        if(*free_choice != 0) printf("\t[number on cell] to open (- $0)\n");
+        else printf("\t[number on cell] to open (- $%d)\n", *choice_cost);
+        printf("\t[0] to continue the game\n");
+        printf("Enter the number(s): ");
+        scanf("%d", &choice);
+        if(choice < 0 || choice > (*lot_size)*(*lot_size))      // check invalid if out of range
+        {
+            printf("Invalid input!!!!\n");
+            continue;
+        }
+        if(choice == 0) break;
+        // find position
+        int a = ((choice-1) / *lot_size);
+        int b = ((choice-1) % *lot_size);
+        if(*(choosen + a * (*lot_size) + b) == -1)                                 // check invalid if choosen
+        {
+            printf("Invalid input!!!!\n");
+            continue;
+        }
+        else if(*free_choice == 0 && *money < *choice_cost)      // check if no money and no free choice
+        {
+            printf("You have no money!\n");
+            break;
+        }
+        else *money -= *choice_cost;
+        here:
+        *(choosen + a * (*lot_size) + b) = -1;
 
-//             //find prize_type
-//             srand(time(NULL));
-//             int prize_type = rand() % 9 + 1;
+        // find prize_type
+        srand(time(NULL));
+        int prize_type = rand() % 9 + 1;
 
-//             //mechanism
-//             switch(prize_type)
-//             {
-//                 case 1:
-//                     *money += 100 * (*price);
-//                     printf("Fortune, fortune! You get $%d!\n", 100 * (*price));
-//                     if(*free_choice == 0) *choice_cost += 500;
-//                     else --*free_choice;
-//                     break;
-//                 case 2:
-//                     printf("You get an extra choice!\n");
-//                     if(*free_choice == 0) *choice_cost += 500;
-//                     else --*free_choice;
-//                     ++*free_choice;
-//                     break;
-//                 case 3:
-//                     if(*free_choice == 0) *choice_cost += 500;
-//                     else --*free_choice;
-//                     a -= 1;
-//                     if(a == -1) a = n-1;
-//                     if(*(choosen + a * (*n) + b) == -1)
-//                     {
-//                         printf("Bad Luck :(\n");
-//                         break;
-//                     }
-//                     else
-//                     {
-//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
-//                         ++*free_choice;
-//                         goto here;
-//                     }
-//                 case 4:
-//                     if(*free_choice == 0) *choice_cost += 500;
-//                     else --*free_choice;
-//                     a += 1;
-//                     if(a == n) a = 0;
-//                     if(*(choosen + a * (*n) + b) == -1)
-//                     {
-//                         printf("Bad Luck :(\n");
-//                         break;
-//                     }
-//                     else
-//                     {
-//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
-//                         ++*free_choice;
-//                         goto here;
-//                     }
-//                 case 5:
-//                     if(*free_choice == 0) *choice_cost += 500;
-//                     else --*free_choice;
-//                     b -= 1;
-//                     if(b == -1) b = n-1;
-//                     if(*(choosen + a * (*n) + b) == -1)
-//                     {
-//                         printf("Bad Luck :(\n");
-//                         break;
-//                     }
-//                     else
-//                     {
-//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
-//                         ++*free_choice;
-//                         goto here;
-//                     }
-//                 case 6:
-//                     if(*free_choice == 0) choice_cost += 500;
-//                     else --*free_choice;
-//                     b += 1;
-//                     if(b == n) b = 0;
-//                     if(*(choosen + a * (*n) + b) == -1)
-//                     {
-//                         printf("Bad Luck :(\n");
-//                         break;
-//                     }
-//                     else
-//                     {
-//                         printf("Another open on %d!\n", *(poison + a * (*n) + b));
-//                         ++*free_choice;
-//                         goto here;
-//                     }
-//                 case 7:
-//                     add_booster(booster_record, *n, 1);
-//                     if(*free_choice == 0) choice_cost += 500;
-//                     else --*free_choice;
-//                     printf("You get a booster!!\n");
-//                     break;
-//                 case 8:
-//                     p_boost++;
-//                     if(*free_choice == 0) choice_cost += 500;
-//                     else --free_choice;
-//                     printf("You get a booster!!\n");
-//                     break;
-//                 case 9:
-//                     a_boost++;
-//                     if(*free_choice == 0) choice_cost += 500;
-//                     else --*free_choice;
-//                     printf("You get a booster!!\n");
-//                     break;
-//             };
-//         }
-//     }
-// }
+        // prize mechanism
+        switch(prize_type)
+            {
+                case 1:
+                    *money += 100 * (*price);
+                    printf("Fortune, fortune! You get $%d!\n", 100 * (*price));
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    break;
+                case 2:
+                    printf("You get an extra choice!\n");
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    ++*free_choice;
+                    break;
+                case 3:
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    a -= 1;
+                    if(a == -1) a = *lot_size-1;
+                    if(*(choosen + a * (*lot_size) + b) == -1)
+                    {
+                        printf("Bad Luck :(\n");
+                        break;
+                    }
+                    else
+                    {
+                        printf("Another open on %d!\n", *(poison + a * (*lot_size) + b));
+                        ++*free_choice;
+                        goto here;
+                    }
+                case 4:
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    a += 1;
+                    if(a == *lot_size) a = 0;
+                    if(*(choosen + a * (*lot_size) + b) == -1)
+                    {
+                        printf("Bad Luck :(\n");
+                        break;
+                    }
+                    else
+                    {
+                        printf("Another open on %d!\n", *(poison + a * (*lot_size) + b));
+                        ++*free_choice;
+                        goto here;
+                    }
+                case 5:
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    b -= 1;
+                    if(b == -1) b = *lot_size-1;
+                    if(*(choosen + a * (*lot_size) + b) == -1)
+                    {
+                        printf("Bad Luck :(\n");
+                        break;
+                    }
+                    else
+                    {
+                        printf("Another open on %d!\n", *(poison + a * (*lot_size) + b));
+                        ++*free_choice;
+                        goto here;
+                    }
+                case 6:
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    b += 1;
+                    if(b == *lot_size) b = 0;
+                    if(*(choosen + a * (*lot_size) + b) == -1)
+                    {
+                        printf("Bad Luck :(\n");
+                        break;
+                    }
+                    else
+                    {
+                        printf("Another open on %d!\n", *(poison + a * (*lot_size) + b));
+                        ++*free_choice;
+                        goto here;
+                    }
+                case 7:
+                    add_booster(booster_record, bst_record_size, 1);
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    printf("You get a booster!!\n");
+                    break;
+                case 8:
+                    add_booster(booster_record, bst_record_size, 2);
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    printf("You get a booster!!\n");
+                    break;
+                case 9:
+                    add_booster(booster_record, bst_record_size, 3);
+                    deductfree_or_addcost(free_choice, choice_cost);
+                    printf("You get a booster!!\n");
+                    break;
+            };
+    }
+}
 
-void add_booster(int *booster_record, int bst_record_size, int new_booster)
+void add_booster(int *booster_record, int *bst_record_size, int new_booster)
 {
     int pos;
-    for(int i = 0; i < bst_record_size; i++)
+    for(int i = 0; i < *bst_record_size; i++)
     {
         // if array is not full
         if(booster_record[i] == 0)
@@ -977,11 +959,11 @@ void add_booster(int *booster_record, int bst_record_size, int new_booster)
         }
 
         // if array is fulled
-        for(int j = 0; j < bst_record_size - 2; j++)
+        for(int j = 0; j < *bst_record_size - 2; j++)
         {
             booster_record[j] = booster_record[j + 1];
         }
-        pos = bst_record_size - 1;
+        pos = *bst_record_size - 1;
     }
     booster_record[pos] = new_booster;
 }
