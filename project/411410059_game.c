@@ -4,7 +4,7 @@
 #include<time.h>
 #include<windows.h>
 
-#define watch(x) printf(#x" is %d\n", x)
+#define watch(x) printf(#x" is %d\n", x)                                                // tool for debug
 
 void map_sys(int *money, int *booster_record,int bst_record_size), show_map(const char *map, int size);
 void booster_sys(int *boost_state, int s_boost, int p_boost, int a_boost);
@@ -16,7 +16,7 @@ void deductfree_or_addcost(int *free_choice, int *choice_cost);
 void lottery(int *free_choice, int *lot_size, int *matrix_fulled, int *choice_cost, int *money, int *price, int **choosen, int **poison, int *booster_record, int *bst_record_size);
 void earn_money(int *money, int *earn_this_round, int *earn_record, int *hotdog_record, int *boost_state, int earn_here, int area, int cook_time);
 void rand_event_with_input(int *x);
-void rick_is_rolling();
+void rick_is_rolling(), T_name();
 
 int main()
 {
@@ -35,12 +35,12 @@ int main()
     int choice_cost = 500, lot_size = 3;                                                // cost of each choice, initial size of lottery
     int matrix_fulled = 0;                                                              // for checking if lottery is empty
     int free_choice = 0;                                                                // store free choice
-    int **poison = malloc(100 * (int) sizeof(int));                                     // store number of lottery
-    int **choosen = malloc(100 * (int) sizeof(int));                                    // store state of each number in lottery
-    for(int i = 0; i < 100; ++i)
+    int **poison = malloc(100 * sizeof(int *));                                     // store number of lottery
+    int **choosen = malloc(100 * (int) sizeof(int *));                                    // store state of each number in lottery
+    for(int i = 0; i < 50; ++i)
     {
-        poison[i] = malloc(100 * (int) sizeof(int));
-        choosen[i] = malloc(100 * (int) sizeof(int));
+        poison[i] = malloc(100 * (int) sizeof(int *));
+        choosen[i] = malloc(100 * (int) sizeof(int *));
     }
     
     // fill poison, booster_record
@@ -64,7 +64,6 @@ int main()
     {
         int earn_this_round = 0;
         int action[4] = {0};
-        booster_record[0] = 3;
         cal_booster(booster_record, bst_record_size, &s_boost, &p_boost, &a_boost);
 
         // start of new day
@@ -110,32 +109,32 @@ int main()
         int area = 0;
         while(area < 4)
         {
-            int earn_here = 180 / cook_time * price;
-            if(boost_state[0] == 1) earn_here *= 2;
-            if(boost_state[1] == 1) earn_here *= 2;
+            int earn_here = 180 / cook_time * price;    // initialize total possible earn
+            if(boost_state[0] == 1) earn_here *= 2;     // multiply money earn if spd boost is open
+            if(boost_state[1] == 1) earn_here *= 2;     // multiply money earn if taste boost is open
             switch(action[area])
             {
-                case 1:
+                case 1:                     // earn money
                     earn_money(&money, &earn_this_round, earn_record, hotdog_record, boost_state, earn_here, area, cook_time);
                     check[area] = 1;
                     area++;
                     break;
-                case 2:
-                    if(money < spd_cost)
+                case 2:                     // upgrade cooking speed
+                    if(money < spd_cost)    // case of no money
                     {
                         earn_money(&money, &earn_this_round, earn_record, hotdog_record, boost_state, earn_here, area, cook_time);
                         check[area] = 2;
                         area++;
                         break;
                     }
-                    else if(cook_time == 1)
+                    else if(cook_time == 1) // case of reached the time limit
                     {
                         earn_money(&money, &earn_this_round, earn_record, hotdog_record, boost_state, earn_here, area, cook_time);
                         check[area] = 3;
                         area++;
                         break;
                     }
-                    else
+                    else                    // case of successful upgrade
                     {
                         money -= spd_cost;
                         cook_time--;
@@ -144,15 +143,15 @@ int main()
                         area++;
                         break;
                     }
-                case 3:
-                    if(money < taste_cost)
+                case 3:                     // upgrade flavour
+                    if(money < taste_cost)  // case of no money
                     {
                         earn_money(&money, &earn_this_round, earn_record, hotdog_record, boost_state, earn_here, area, cook_time);
                         check[area] = 5;
                         area++;
                         break;
                     }
-                    else
+                    else                    // case of successful upgrade
                     {
                         money -= taste_cost;
                         price += 10;
@@ -255,7 +254,9 @@ int main()
     printf("@@@                  @@@  @@@@@@@@@@@@@        @@@@@     @@@@@@@@@@@  @@@  @@@@@\n");
     printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
     }
-    
+
+    system("411410059_thanks.txt");
+
     return 0;
 }
 
@@ -666,84 +667,81 @@ void lottery(int *free_choice, int *lot_size, int *matrix_fulled, int *choice_co
 
         // prize mechanism
         switch(prize_type)
-            {
-                case 1:
-                    *money += 100 * (*price);
-                    printf("Fortune, fortune! You get $%d!\n", 100 * (*price));
+        {
+            case 1:     // get money
+                *money += 100 * (*price);
+                printf("Fortune, fortune! You get $%d!\n", 100 * (*price));
+                break;
+            case 2:     // extra choice
+                printf("You get an extra choice!\n");
+                ++*free_choice;
+                break;
+            case 3:     // open up
+                a -= 1;
+                if(a == -1) a = *lot_size-1;
+                if(choosen[a][b] == -1)
+                {
+                    printf("Bad Luck :(\n");
                     break;
-                case 2:
-                    printf("You get an extra choice!\n");
+                }
+                else
+                {
+                    printf("Another open on %d!\n", poison[a][b]);
+                    goto here;
+                }
+            case 4:     // open down
+                a += 1;
+                if(a == *lot_size) a = 0;
+                if(choosen[a][b] == -1)
+                {
+                    printf("Bad Luck :(\n");
+                    break;
+                }
+                else
+                {
+                    printf("Another open on %d!\n", poison[a][b]);
+                    goto here;
+                }
+            case 5:     // open left
+                b -= 1;
+                if(b == -1) b = *lot_size-1;
+                if(choosen[a][b] == -1)
+                {
+                    printf("Bad Luck :(\n");
+                    break;
+                }
+                else
+                {
+                    printf("Another open on %d!\n", poison[a][b]);
+                    goto here;
+                }
+            case 6:     // open right
+                b += 1;
+                if(b == *lot_size) b = 0;
+                if(choosen[a][b] == -1)
+                {
+                    printf("Bad Luck :(\n");
+                    break;
+                }
+                else
+                {
+                    printf("Another open on %d!\n", poison[a][b]);
                     ++*free_choice;
-                    break;
-                case 3:
-                    a -= 1;
-                    if(a == -1) a = *lot_size-1;
-                    if(choosen[a][b] == -1)
-                    {
-                        printf("Bad Luck :(\n");
-                        break;
-                    }
-                    else
-                    {
-                        printf("Another open on %d!\n", poison[a][b]);
-                        goto here;
-                    }
-                case 4:
-                    a += 1;
-                    if(a == *lot_size) a = 0;
-                    if(choosen[a][b] == -1)
-                    {
-                        printf("Bad Luck :(\n");
-                        break;
-                    }
-                    else
-                    {
-                        printf("Another open on %d!\n", poison[a][b]);
-                        goto here;
-                    }
-                case 5:
-                    b -= 1;
-                    if(b == -1) b = *lot_size-1;
-                    if(choosen[a][b] == -1)
-                    {
-                        printf("Bad Luck :(\n");
-                        break;
-                    }
-                    else
-                    {
-                        printf("Another open on %d!\n", poison[a][b]);
-                        goto here;
-                    }
-                case 6:
-                    b += 1;
-                    if(b == *lot_size) b = 0;
-                    if(choosen[a][b] == -1)
-                    {
-                        printf("Bad Luck :(\n");
-                        break;
-                    }
-                    else
-                    {
-                        printf("Another open on %d!\n", poison[a][b]);
-                        ++*free_choice;
-                        goto here;
-                    }
-                case 7:
-                    add_booster(booster_record, bst_record_size, 1);
-                    printf("1");
-                    printf("You get a booster!!\n");
-                    break;
-                case 8:
-                    add_booster(booster_record, bst_record_size, 2);
-                    printf("2");
-                    printf("You get a booster!!\n");
-                    break;
-                case 9:
-                    add_booster(booster_record, bst_record_size, 3);
-                    printf("3");
-                    printf("You get a booster!!\n");
-                    break;
-            };
+                    goto here;
+                }
+            case 7:     // get spd booster
+                add_booster(booster_record, bst_record_size, 1);
+                printf("You get a booster!!\n");
+                break;
+            case 8:     // get taste booster
+                add_booster(booster_record, bst_record_size, 2);
+                printf("You get a booster!!\n");
+                break;
+            case 9:     // get area booster
+                add_booster(booster_record, bst_record_size, 3);
+                printf("You get a booster!!\n");
+                break;
+        };
     }
 }
 
@@ -827,15 +825,23 @@ void rand_event_with_input(int *x)
     scanf("%d", &y);
     *x = y;
     srand(time(NULL));
-    if((rand() % 10 + 1) == 10)
+    if((rand() % 5 + 1) == 5)
     {
-        rick_is_rolling();
-        printf("You have been rick rolled!!!\n");
+        if(rand() % 2)
+        {
+            rick_is_rolling();
+            printf("You have been rick rolled!!!\n");
+        }
+        else
+        {
+            T_name();
+        }
     }
 }
 
 void rick_is_rolling()
 {
+    // rick roll music
     Beep(784,   120);
     Beep(880,   120);
     Beep(1046,  120);
@@ -868,4 +874,19 @@ void rick_is_rolling()
     Beep(784,   240);
     Beep(1175,  480);
     Beep(1046,  480);
+}
+
+void T_name()
+{
+    char name[1000] = {'\0'};
+    int i = 0;
+    printf("What is your teacher's name?\n");
+    char c;
+    while((c = getchar()) != '\n')
+    {
+        name[i] = c;
+        ++i;
+    }
+    printf("Your teacher is %s.\n", name);
+    printf("Please do not spell his/her name wrongly.\n");
 }
