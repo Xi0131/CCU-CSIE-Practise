@@ -9,7 +9,6 @@ void rick_is_rolling();
 int main()
 {
     char name[1000] = {'\0'};
-    int x;
     int i = 0;
     // rand_event_with_input(&x);
     printf("What is your teacher's name? \n");

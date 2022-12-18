@@ -16,7 +16,9 @@ void deductfree_or_addcost(int *free_choice, int *choice_cost);
 void lottery(int *free_choice, int *lot_size, int *matrix_fulled, int *choice_cost, int *money, int *price, int **choosen, int **poison, int *booster_record, int *bst_record_size);
 void earn_money(int *money, int *earn_this_round, int *earn_record, int *hotdog_record, int *boost_state, int earn_here, int area, int cook_time);
 void rand_event_with_input(int *x);
-void rick_is_rolling(), T_name();
+void rick_is_rolling(), QR_code();
+void continue_game(int *again);
+void action_validation(int *action);
 
 int main()
 {
@@ -35,8 +37,8 @@ int main()
     int choice_cost = 500, lot_size = 3;                                                // cost of each choice, initial size of lottery
     int matrix_fulled = 0;                                                              // for checking if lottery is empty
     int free_choice = 0;                                                                // store free choice
-    int **poison = malloc(100 * sizeof(int *));                                     // store number of lottery
-    int **choosen = malloc(100 * (int) sizeof(int *));                                    // store state of each number in lottery
+    int **poison = malloc(100 * sizeof(int *));                                         // store number of lottery
+    int **choosen = malloc(100 * (int) sizeof(int *));                                  // store state of each number in lottery
     for(int i = 0; i < 50; ++i)
     {
         poison[i] = malloc(100 * (int) sizeof(int *));
@@ -57,53 +59,39 @@ int main()
         booster_record[i] = 0;
     }
 
+    // greetings
     printf("Welcome, young boss!\n");
     printf("You have %d slots for booster.\n", bst_record_size);
-
+    // booster_record[0] = 1;
     while(1)
     {
-        int earn_this_round = 0;
-        int action[4] = {0};
+        int earn_this_round = 0;                                                        // record money earned in a day
+        int action[4] = {0};                                                            // store action choosen for each area
+        
+        // calculate number of booster owned
         cal_booster(booster_record, bst_record_size, &s_boost, &p_boost, &a_boost);
 
         // start of new day
-        {
         printf("Chop chop, It's dawn.\n");
         printf("You have %d dollars.\n", money);
         printf("You need %d minutes to make a hotdog.\n", cook_time);
         printf("The price of a hotdog is $%d.\n", price);
-        }
 
         // booster
         booster_sys(boost_state, s_boost, p_boost, a_boost);
 
         // explanation of actions
-        {
         printf("Actions you can take for each area:\n");
         printf("\t[1] Sell the hotdogs\n");
         printf("\t[2] Improve your cooking speed\n");
         printf("\t    (- $%d, - $%d, - $%d, - $%d for next four upgrades)\n", spd_cost, spd_cost*2, spd_cost*4, spd_cost*8);
         printf("\t[3] Improve your hotdog flavor\n");
         printf("\t    (- $%d, - $%d, - $%d, - $%d for next four upgrades)\n", taste_cost, taste_cost*2, taste_cost*4, taste_cost*8);
-        }
 
         // action input
         printf("Enter the number(s): ");
         scanf("%d%d%d%d", &action[0], &action[1], &action[2], &action[3]);
-        for(int i = 0; i < 4; ++i)
-        {
-            while(1)
-            {
-                if(action[i] < 1 || action[i] > 3) printf("Invalid input!!!!\n");
-                else break;
-                printf("Actions you can take at Area %d: \n", i+1);
-                printf("\t[1] Sell the hotdogs\n");
-                printf("\t[2] Improve your cooking speed\n");
-                printf("\t[3] Improve your hotdog flavor\n");
-                printf("Enter the number(s): ");
-                rand_event_with_input(&action[i]);
-            }
-        }
+        action_validation(action);
 
         // body
         int area = 0;
@@ -163,54 +151,53 @@ int main()
             }
         }
         
+        // easter egg
+        if((rand() % 10 + 1) == 10)
+        {
+        char name[1000] = {'\0'};
+        int i = 0;
+        printf("What is your teacher's name? \n");
+        char c;
+        while((c = getchar()) != '\n')
+        {
+            name[i] = c;
+            ++i;
+        }
+        printf("Your teacher is %s.\n", name);
+        printf("Please do not spell his/her name wrongly!\n");
+        }
+
         // area booster
         int earn_here = 180 / cook_time * price;
-        // delete used booster
+        // delete and close used booster
         if(boost_state[0] == 1)
         {
             earn_here *= 2;
+            boost_state[0] = 0;
             del_booster(booster_record, bst_record_size, 1);
         }
         if(boost_state[1] == 1)
         {
             earn_here *= 2;
+            boost_state[1] = 0;
             del_booster(booster_record, bst_record_size, 2);
         }
         if(boost_state[2])
         {
             earn_money(&money, &earn_this_round, earn_record, hotdog_record, boost_state, earn_here, 4, cook_time);
             check[4] = 1;
+            boost_state[2] = 0;
             del_booster(booster_record, bst_record_size, 3);
         }
-        // bonus_area(cook_time, price, boost_state, check)
+        
+        // end of day
         printf("Well done, you earn $%d today.\n", earn_this_round);
 
         // check action when done
         check_action(boost_state[2], hotdog_record, earn_record, booster_record, &money, check);
 
-        // close all opened booster
-        for(int i = 0; i < 4; ++i)
-        {
-            if(boost_state[i] == 1)
-            {
-                boost_state[i] = 0;
-                del_booster(booster_record, bst_record_size, booster_record[i]);
-            }
-        }
-
         // ask if continue
-        while(1)
-        {
-            printf("Do you want to continue or exit?\n");
-            printf("\t[1] Continue\n");
-            printf("\t[2] Exit\n");
-            printf("Enter the number(s): ");
-            rand_event_with_input(&again);
-            if(again < 1 || again > 2)
-            {
-                printf("Invalid input!!!!\n");
-            }else break;
-        }
+        continue_game(&again);
         if(again == 2) break;
         
         // loterry
@@ -219,41 +206,7 @@ int main()
     printf("We will miss you. Bye!\n");
 
     // easter egg
-    {
-    printf("Please check out the following QR code\n");
-    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
-    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
-    printf("@@@                  @@@     @@@@@@@@@@   @@             @@@                  @@\n");
-    printf("@@@   @@@@@@@@@@@@&  @@@@@@@@@@@@@@@@  @@@@@@@@     @@@@@@@@  @@@@@@@@@@@@@   @@\n");
-    printf("@@@   @@        @@&  @@@  @@@@@           @@@@@@@(  @@@  @@@  @@@        @@   @@\n");
-    printf("@@@   @@        @@&  @@@     @@   @@@  @@@             @@@@@  @@@        @@   @@\n");
-    printf("@@@   @@        @@&  @@@          @@@  @@@  @@@@@@@@   @@@@@  @@@        @@   @@\n");
-    printf("@@@   @@@@@@@@@@@@&  @@@@@   @@@@@     @@@@@@@@          @@@  @@@@@@@@@@@@@   @@\n");
-    printf("@@@                  @@@  @@@  @@@   @@   @@   @@(  @@@  @@@                  @@\n");
-    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@   @@   @@@@@@@@               @@@@@@@@@@@@@@@@@@@@@@@\n");
-    printf("@@@          @@@@@&  @@@  @@@@@@@@@@@     @@@@@        @@   @@@@@        @@   @@\n");
-    printf("@@@@@@@@   @@     .@@   @@   @@@@@@@@@@   @@   @@@@@     @@@        @@@@@@@   @@\n");
-    printf("@@@             @@&  @@@  @@@@@@@@@@@  @@@@@   @@(  @@@  @@@        @@     @@@@@\n");
-    printf("@@@@@@  @@@     @@@@@   @@@@@@@           @@   @@(  @@@             @@@@@@@   @@\n");
-    printf("@@@@@@       @@@     @@@@@   @@   @@@            /@@   @@@@@@@@@@@@@     @@@@@@@\n");
-    printf("@@@     @@@       .@@@@@  @@@     @@@@@   @@     /@@     @@@     @@@@@        @@\n");
-    printf("@@@   @@   @@        @@@@@     @@@   @@   @@   @@@@@        @@      @@        @@\n");
-    printf("@@@     @@@     @@@@@@@@  @@@@@@@@   @@        @@@@@@@@  @@@        @@@@@  @@@@@\n");
-    printf("@@@   @@        @@&  @@@@@@@@     @@@@@@@@@@@@@@@(  @@@     @@@@@     @@@  @@@@@\n");
-    printf("@@@@@@     @@   @@@@@        @@@@@   @@     @@@@@(  @@@     @@   @@@       @@@@@\n");
-    printf("@@@   @@@@@  @@@@@&  @@@             @@@@@     @@@@@@@@@@@@@@@   @@@@@   @@@@@@@\n");
-    printf("@@@@@@@@          .@@@@@@@@@@@@@@@   @@   @@     /@@        @@@@@@@@@@   @@@@@@@\n");
-    printf("@@@@@@  @@@  @@@@@&                  @@     @@@                          @@@@@@@\n");
-    printf("@@@@@@@@@@@@@@@@@@@@@@@@       @@@   @@@@@@@@@@@@(  @@@  @@@@@@@@             @@\n");
-    printf("@@@                  @@@@@                @@@@@@@@@@     @@@  @@@     @@@  @@@@@\n");
-    printf("@@@   @@@@@@@@@@@@&  @@@@@   @@@@@@@@       @@@@@(  @@@  @@@@@@@@     @@@  @@@@@\n");
-    printf("@@@   @@        @@&  @@@@@@@@  @@@   @@          /@@@@@             @@        @@\n");
-    printf("@@@   @@        @@&  @@@  @@@@@      @@@@@     @@@@@        @@@@@     @@@@@   @@\n");
-    printf("@@@   @@        @@&  @@@  @@@     @@@  @@@@@@@@@@@@@@@@@@   @@   @@@@@   @@   @@\n");
-    printf("@@@   @@@@@@@@@@@@&  @@@  @@@@@   @@@@@   @@   @@(       @@@@@   @@@  @@@  @@@@@\n");
-    printf("@@@                  @@@  @@@@@@@@@@@@@        @@@@@     @@@@@@@@@@@  @@@  @@@@@\n");
-    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
-    }
+    QR_code();
 
     system("411410059_thanks.txt");
 
@@ -787,6 +740,9 @@ void del_booster(int *booster_record, int bst_record_size, int old_booster_type)
 
 void cal_booster(int *booster_record, int bst_record_size, int *s_boost, int *p_boost, int *a_boost)
 {
+    *s_boost = 0;
+    *p_boost = 0;
+    *a_boost = 0;
     for(int i = 0; i < bst_record_size; i++)
     {
         if(booster_record[i] == 1)
@@ -825,17 +781,10 @@ void rand_event_with_input(int *x)
     scanf("%d", &y);
     *x = y;
     srand(time(NULL));
-    if((rand() % 5 + 1) == 5)
+    if((rand() % 10 + 1) == 10)
     {
-        if(rand() % 2)
-        {
-            rick_is_rolling();
-            printf("You have been rick rolled!!!\n");
-        }
-        else
-        {
-            T_name();
-        }
+        rick_is_rolling();
+        printf("You have been rick rolled!!!\n");
     }
 }
 
@@ -876,17 +825,73 @@ void rick_is_rolling()
     Beep(1046,  480);
 }
 
-void T_name()
+void continue_game(int *again)
 {
-    char name[1000] = {'\0'};
-    int i = 0;
-    printf("What is your teacher's name?\n");
-    char c;
-    while((c = getchar()) != '\n')
+    while(1)
     {
-        name[i] = c;
-        ++i;
+        printf("Do you want to continue or exit?\n");
+        printf("\t[1] Continue\n");
+        printf("\t[2] Exit\n");
+        printf("Enter the number(s): ");
+        rand_event_with_input(again);
+        if(*again < 1 || *again > 2)
+        {
+            printf("Invalid input!!!!\n");
+        }else break;
     }
-    printf("Your teacher is %s.\n", name);
-    printf("Please do not spell his/her name wrongly.\n");
+}
+
+void QR_code()
+{
+    printf("Please check out the following QR code\n");
+    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+    printf("@@@                  @@@     @@@@@@@@@@   @@             @@@                  @@\n");
+    printf("@@@   @@@@@@@@@@@@&  @@@@@@@@@@@@@@@@  @@@@@@@@     @@@@@@@@  @@@@@@@@@@@@@   @@\n");
+    printf("@@@   @@        @@&  @@@  @@@@@           @@@@@@@(  @@@  @@@  @@@        @@   @@\n");
+    printf("@@@   @@        @@&  @@@     @@   @@@  @@@             @@@@@  @@@        @@   @@\n");
+    printf("@@@   @@        @@&  @@@          @@@  @@@  @@@@@@@@   @@@@@  @@@        @@   @@\n");
+    printf("@@@   @@@@@@@@@@@@&  @@@@@   @@@@@     @@@@@@@@          @@@  @@@@@@@@@@@@@   @@\n");
+    printf("@@@                  @@@  @@@  @@@   @@   @@   @@(  @@@  @@@                  @@\n");
+    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@   @@   @@@@@@@@               @@@@@@@@@@@@@@@@@@@@@@@\n");
+    printf("@@@          @@@@@&  @@@  @@@@@@@@@@@     @@@@@        @@   @@@@@        @@   @@\n");
+    printf("@@@@@@@@   @@     .@@   @@   @@@@@@@@@@   @@   @@@@@     @@@        @@@@@@@   @@\n");
+    printf("@@@             @@&  @@@  @@@@@@@@@@@  @@@@@   @@(  @@@  @@@        @@     @@@@@\n");
+    printf("@@@@@@  @@@     @@@@@   @@@@@@@           @@   @@(  @@@             @@@@@@@   @@\n");
+    printf("@@@@@@       @@@     @@@@@   @@   @@@            /@@   @@@@@@@@@@@@@     @@@@@@@\n");
+    printf("@@@     @@@       .@@@@@  @@@     @@@@@   @@     /@@     @@@     @@@@@        @@\n");
+    printf("@@@   @@   @@        @@@@@     @@@   @@   @@   @@@@@        @@      @@        @@\n");
+    printf("@@@     @@@     @@@@@@@@  @@@@@@@@   @@        @@@@@@@@  @@@        @@@@@  @@@@@\n");
+    printf("@@@   @@        @@&  @@@@@@@@     @@@@@@@@@@@@@@@(  @@@     @@@@@     @@@  @@@@@\n");
+    printf("@@@@@@     @@   @@@@@        @@@@@   @@     @@@@@(  @@@     @@   @@@       @@@@@\n");
+    printf("@@@   @@@@@  @@@@@&  @@@             @@@@@     @@@@@@@@@@@@@@@   @@@@@   @@@@@@@\n");
+    printf("@@@@@@@@          .@@@@@@@@@@@@@@@   @@   @@     /@@        @@@@@@@@@@   @@@@@@@\n");
+    printf("@@@@@@  @@@  @@@@@&                  @@     @@@                          @@@@@@@\n");
+    printf("@@@@@@@@@@@@@@@@@@@@@@@@       @@@   @@@@@@@@@@@@(  @@@  @@@@@@@@             @@\n");
+    printf("@@@                  @@@@@                @@@@@@@@@@     @@@  @@@     @@@  @@@@@\n");
+    printf("@@@   @@@@@@@@@@@@&  @@@@@   @@@@@@@@       @@@@@(  @@@  @@@@@@@@     @@@  @@@@@\n");
+    printf("@@@   @@        @@&  @@@@@@@@  @@@   @@          /@@@@@             @@        @@\n");
+    printf("@@@   @@        @@&  @@@  @@@@@      @@@@@     @@@@@        @@@@@     @@@@@   @@\n");
+    printf("@@@   @@        @@&  @@@  @@@     @@@  @@@@@@@@@@@@@@@@@@   @@   @@@@@   @@   @@\n");
+    printf("@@@   @@@@@@@@@@@@&  @@@  @@@@@   @@@@@   @@   @@(       @@@@@   @@@  @@@  @@@@@\n");
+    printf("@@@                  @@@  @@@@@@@@@@@@@        @@@@@     @@@@@@@@@@@  @@@  @@@@@\n");
+    printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+}
+
+void action_validation(int *action)
+{
+    for(int i = 0; i < 4; ++i)
+    {
+        while(1)
+        {
+            if(action[i] < 1 || action[i] > 3) printf("Invalid input!!!!\n");
+            else break;
+            printf("Actions you can take at Area %d: \n", i+1);
+            printf("\t[1] Sell the hotdogs\n");
+            printf("\t[2] Improve your cooking speed\n");
+            printf("\t[3] Improve your hotdog flavor\n");
+            printf("Enter the number(s): ");
+            rand_event_with_input(&action[i]);
+        }
+    }
 }
