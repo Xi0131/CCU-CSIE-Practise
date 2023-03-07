@@ -3,30 +3,26 @@
 
 void goup(char* s, int lenS){
     for(int i = 0; i < lenS; i++){
-        if(*(s + i) > 'Z' || *(s + i) < 'A'){
-            *(s + i) -= 32;
-        }
+        char* t = (s + i);
+        (*t <= 'z') && (*t >= 'a') ? (*t += 'A' - 'a') : *t;
     }
 }
 
 void godown(char* s, int lenS){
     for(int i = 0; i < lenS; i++){
-        if(*(s + i) > 'z' || *(s + i) < 'a'){
-            *(s + i) += 32;
-        }
+        char* t = (s + i);
+        (*t <= 'Z') && (*t >= 'A') ? (*t += 'a' - 'A') : *t;
     }
 }
 
 void wave(char* s, int lenS){
     for(int i = 1; i < lenS; i += 2){
-        if(*(s + i) > 'z' || *(s + i) < 'a'){
-            *(s + i) += 32;
-        }
+        char* t = (s + i);
+        (*t <= 'z') && (*t >= 'a') ? (*t += 'A' - 'a') : *t;
     }
     for(int i = 0; i < lenS; i += 2){
-        if(*(s + i) > 'Z' || *(s + i) < 'A'){
-            *(s + i) -= 32;
-        }
+        char* t = (s + i);
+        (*t <= 'Z') && (*t >= 'A') ? (*t += 'a' - 'A') : *t;
     }
 }
 
