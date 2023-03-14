@@ -31,7 +31,20 @@ void selection(int *arr, int size){
 }
 
 void insertion(int *arr, int size){
-    
+    int *buffer = arr;
+    for(int i = 1; i < size; i++){
+        if(arr[i] < arr[i - 1]){
+            for(int j = i; j >= 0; j--){
+                if(arr[i] < arr[j]){
+                    swap(&arr[i], &arr[j]);
+                    printf("%d\n", j);
+                }
+            }
+        }
+        else{
+            printf("%d\n", i);
+        }
+    }
 }
 
 int main(){
@@ -53,7 +66,6 @@ int main(){
     else{
         insertion(arr, n);
     }
-
 
     return 0;
 }
