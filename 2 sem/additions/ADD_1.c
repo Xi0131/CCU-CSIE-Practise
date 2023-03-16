@@ -31,19 +31,19 @@ void selection(int *arr, int size){
 }
 
 void insertion(int *arr, int size){
-    int *buffer = arr;
     for(int i = 1; i < size; i++){
+        int pos = i;
         if(arr[i] < arr[i - 1]){
-            for(int j = i; j >= 0; j--){
+            for(int j = i - 1; j >= 0; j--){
+                printf("%d! ", j);
                 if(arr[i] < arr[j]){
                     swap(&arr[i], &arr[j]);
-                    printf("%d\n", j);
+                    printf("%d %d\n", arr[i], arr[j]);
+                    pos = j;
                 }
             }
         }
-        else{
-            printf("%d\n", i);
-        }
+        printf("%d\n", pos);
     }
 }
 
@@ -65,6 +65,10 @@ int main(){
     }
     else{
         insertion(arr, n);
+    }
+
+    for(int i = 0; i < n; i++){
+        printf("%d ", arr[i]);
     }
 
     return 0;
