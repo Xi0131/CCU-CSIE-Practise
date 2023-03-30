@@ -32,19 +32,14 @@ int main(){
     while(1){
         char t;
         printf("Current Course: %s\n", head->name);
-        printf("[n] Next course. [p] Prior course [q] Quit: ");
+        printf("[n] Next course. [p] Prior course [q] Quit:");
         scanf(" %c", &t);
+        if(head->next == NULL && t == 'n') printf("There is no next course.\n");
+        else if(head->prior == NULL && t == 'p') printf("There is no previous course.\n");
         if(t == 'q') break;
-        else if(t == 'n') head = head->next;
-        else if(t == 'p') head = head->prior;
-        if(head->name == NULL && t == 'n'){
-            printf("There is no next course.\n");
-            head = head->prior;
-        }
-        else if(head->name == NULL && t == 'p'){
-            printf("There is no previous course.\n");
-            head = head->next;
-        }
+        else if(head->next != NULL && t == 'n') head = head->next;
+        else if(head->prior != NULL && t == 'p') head = head->prior;
+        // printf("%s", head->next);
     }
 
     return 0;
