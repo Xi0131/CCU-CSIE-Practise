@@ -39,7 +39,6 @@ int main(){
         if(t == 'q') break;
         else if(head->next != NULL && t == 'n') head = head->next;
         else if(head->prior != NULL && t == 'p') head = head->prior;
-        // printf("%s", head->next);
     }
 
     return 0;
