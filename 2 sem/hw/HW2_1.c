@@ -21,10 +21,15 @@ int main(){
     head = list;
     head->prior = (struct course*) malloc(sizeof(struct course));
     for(int i = 0; i < num; i++){
-        list->next = (struct course*) malloc(sizeof(struct course));
-        scanf("%d %d %d %s", &(list->course_id), &(list->next->course_id), &(list->prior->course_id), list->name);
-        list->next->prior = list;
-        list = list->next;
+        int id, next, prev;
+        char *name;
+        scanf("%d %d %d %s", &id, &next, &prev, name);
+        list->course_id = id;
+        
+        // list->next = (struct course*) malloc(sizeof(struct course));
+        // scanf("%d %d %d %s", &(list->course_id), &(list->next->course_id), &(list->prior->course_id), list->name);
+        // list->next->prior = list;
+        // list = list->next;
     }
     head->prior = NULL;
     list->prior->next = NULL;
