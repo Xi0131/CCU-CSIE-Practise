@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define debug printf("Hello\n")
-#define watch_s(x) printf("%s is %c\n", (#x), x)
-#define watch_d(x) printf("%s is %d\n", (#x), x)
-
 size_t my_strlen (const char* str);
 char* my_strcpy(char* dest, const char* source);
 char* my_strcat(char* dest, const char* source);
@@ -21,7 +17,7 @@ int main(){
     while(fgets(s, 101, stdin) != NULL){
         cnt++;
         int s_len = my_strlen(s);
-        *(s + s_len - 1) = '\0';
+        if(*(s + s_len - 1) == '\n') *(s + s_len - 1) = '\0';
         if(longest_length == s_len){
             if(my_strcmp(longest_str, s) < 0){
                 my_strcpy(longest_str, s);
@@ -67,4 +63,5 @@ int my_strcmp(const char* str1, const char* str2){
     if(*(str1 + i) == '\0') return 0;
     else if(*(str1 + i) > *(str2 + i)) return 1;
     else if(*(str1 + i) < *(str2 + i)) return -1;
+    return 0;
 }
