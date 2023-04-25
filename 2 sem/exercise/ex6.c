@@ -18,7 +18,6 @@ void insert(char *input, struct node **list){
     buffer->word_cnt = 1;
     strcpy(buffer->word, input);
     buffer->next = NULL;
-    // debug;
     struct node *temp = *list;
     if(temp == NULL){
         *list = buffer;
@@ -29,17 +28,8 @@ void insert(char *input, struct node **list){
     }
 }
 
-// struct node* search(char *input, struct node* list){
-//     debug;
-//     for(; (strcmp(input, list->word) != 0) && (list != NULL); list = list->next);
-//     debug;
-//     if(list == NULL) return NULL;
-//     else return list;
-// }
-
 struct node* search(char *input, struct node* list){
     for(; list != NULL; list = list->next){
-        // watch_string(list->word);
         if(strcmp(list->word, input) == 0){
             return list;
         }
@@ -51,14 +41,10 @@ int main(){
 
     char *input = (char*) malloc(sizeof(char) * MAX_CHAR);
     struct node *list = NULL;
-    // watch_int(list->word_cnt);
 
     while(fgets(input, MAX_CHAR, stdin) != NULL){
         *(input + strlen(input) - 1) = '\0';
         if(*input == '-'){
-
-            // 懶人做法
-            // input = (input+1);
 
             for(int i = 0; *(input + i) != '\0'; *(input + i) = *(input + i + 1), i++);
             struct node *tgt = search(input, list);
@@ -66,7 +52,7 @@ int main(){
         }
         else{
             struct node *temp = search(input, list);
-            if(temp == NULL){ // couldnt find input
+            if(temp == NULL){
                 insert(input, &list);
             }
             else temp->word_cnt++;

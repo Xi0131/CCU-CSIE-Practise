@@ -2,7 +2,9 @@
 #include <stdlib.h>
 
 #define NAME_LENGTH 50
-#define debug printf("Hi\n")
+#define debug printf("Debug line %d\n", __LINE__)
+#define watch_int(x) printf(#x " is %d", x)
+#define watch_string(x) printf(#x " is %s", x)
 
 struct course
 {
