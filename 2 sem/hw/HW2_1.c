@@ -19,7 +19,7 @@ struct course
 };
 
 struct course *search(int num, int tgt, struct course *list){
-    for(; list->inde_link != NULL; list = list->inde_link){
+    for(; list != NULL; list = list->inde_link){
         if(list->course_id == tgt){
             return list;
         }
@@ -61,8 +61,6 @@ void link_prior(int num, struct course **list){
 void link_next(int num, struct course **list){
     struct course *temp2 = *list;
     for(; temp2 != NULL; temp2 = temp2->inde_link){
-        watch_string(temp2->name);
-        watch_string(temp2->inde_link->name);
         if(temp2->next == NULL){
             struct course *next_exist = search(num, temp2->next_id, *list);
             if(next_exist != NULL){
