@@ -13,11 +13,13 @@ struct course
     int course_id;
     struct course *next;
     struct course *prior;
+    struct course *inde_link;
     int prior_id;
+    int next_id;
 };
 
 struct course *search(int num, int tgt, struct course *list){
-    for(int i = 0; (list->next != NULL) && (i < num); list = list->next, i++){
+    for(; list->inde_link != NULL; list = list->inde_link){
         if(list->course_id == tgt){
             return list;
         }
@@ -31,29 +33,40 @@ void insert(int num, int id, int next, int prior, char *name, struct course **li
     strcpy(buffer->name, name);
     buffer->next = NULL;
     buffer->prior = NULL;
+    buffer->inde_link = NULL;
     buffer->prior_id = prior;
+    buffer->next_id = next;
     if(*list == NULL){
         *list = buffer;
     }
     else{
         struct course *temp = *list;
-        for(; temp->next != NULL; temp = temp->next);
-        temp->next = buffer;
-        struct course *next_node = search(num, next, *list);
-        if(next_node != NULL) buffer->next = next_node;
-        else buffer->next = NULL;
-        // struct course *prev = search(num, prior, *list);
-        // buffer->prior = prev;
+        for(; temp->inde_link != NULL; temp = temp->inde_link);
+        temp->inde_link = buffer;
     }
 }
 
 void link_prior(int num, struct course **list){
     struct course *temp2 = *list;
-    for(int i = 0; i < num; temp2 = temp2->next, i++){
+    for(; temp2 != NULL; temp2 = temp2->inde_link){
         if(temp2->prior == NULL){
             struct course *prior_exist = search(num, temp2->prior_id, *list);
             if(prior_exist != NULL){
                 temp2->prior = prior_exist;
+            }
+        }
+    }
+}
+
+void link_next(int num, struct course **list){
+    struct course *temp2 = *list;
+    for(; temp2 != NULL; temp2 = temp2->inde_link){
+        watch_string(temp2->name);
+        watch_string(temp2->inde_link->name);
+        if(temp2->next == NULL){
+            struct course *next_exist = search(num, temp2->next_id, *list);
+            if(next_exist != NULL){
+                temp2->next = next_exist;
             }
         }
     }
@@ -73,6 +86,7 @@ int main(){
     }
 
     link_prior(num, &list);
+    link_next(num, &list);
 
     struct course *buffer = list;
     while(1){
