@@ -4,8 +4,8 @@
 
 #define MAX_CHAR 1025
 #define debug printf("Debug line %d\n", __LINE__)
-#define watch_int(x) printf(#x " is %d", x)
-#define watch_string(x) printf(#x " is %s", x)
+#define watch_int(x) printf(#x " is %d\n", x)
+#define watch_string(x) printf(#x " is %s\n", x)
 
 struct node{
     int word_cnt;
