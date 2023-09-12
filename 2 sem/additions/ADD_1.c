@@ -37,16 +37,6 @@ void insertion(int *arr, int size){
             if(arr[pos] >= arr[pos - 1]) break;
             else swap(&arr[pos], &arr[pos - 1]);
         }
-        // if(arr[i] < arr[i - 1]){
-        //     for(int j = i - 1; j >= 0; j--){
-        //         printf("%d! ", j);
-        //         if(arr[i] < arr[j]){
-        //             swap(&arr[i], &arr[j]);
-        //             printf("%d %d\n", arr[i], arr[j]);
-        //             pos = j;
-        //         }
-        //     }
-        // }
         printf("%d\n", pos);
     }
 }
