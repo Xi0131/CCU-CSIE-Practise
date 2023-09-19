@@ -6,37 +6,66 @@ int ori_map[501][501];
 int map_1_visited[501][501];
 int map_2_visited[501][501];
 
-typedef struct linked_list{
-    int direct;
-    int size;
-    struct linked_list* next;
-    struct linked_list* tail;
-} llist;
+typedef struct double_linked_list{
+    int x;
+    int y;
+    dll* next;
+    dll* prev;
+} dll;
 
-void push(llist* queue, int direction){
-    if(queue->direct == -1){
-        llist* tmp;
-        queue = init_queue(direction);
-        free(tmp);
+typedef struct pair{
+    int x;
+    int y;
+} pair;
+
+typedef struct queue_list{
+    int x;
+    int y;
+    int size;
+    dll* next;
+    dll* tail;
+} dll;
+
+void dll_push(dll* list, int x, int y){
+    dll* tmp = (dll*) malloc(sizeof(dll));
+    tmp->x = x;
+    tmp->y = y;
+    tmp->next = NULL;
+    tmp->prev = NULL;
+    if(list == NULL){
+        list = tmp;
     }
     else{
-        llist* tmp = (llist*) malloc(sizeof(llist));
-        tmp->direct = direction;
+        list->next = tmp;
+        tmp->prev = list;
+        list = tmp;
+    }
+}
+
+void q_push(dll* queue, int new_x, int new_y){
+    if(queue->size == 0){
+        queue = init_queue(new_x, new_y);
+    }
+    else{
+        dll* tmp = (dll*) malloc(sizeof(dll));
+        tmp->x = new_x;
+        tmp->y = new_y;
         tmp->next = NULL;
-        tmp->tail = tmp;
+        tmp->tail = NULL;
         queue->tail = tmp;
         queue->size++;
         tmp->size = queue->size;
     }
 }
 
-void pop(llist* queue){
-    llist* tmp = queue;
+void q_pop(dll* queue){
+    dll* tmp = queue;
     if(tmp->next == NULL){
-        llist* tmp = (llist*) malloc(sizeof(llist));
-        tmp->direct = -1;
+        dll* tmp = (dll*) malloc(sizeof(dll));
+        tmp->x = -1;
+        tmp->y = -1;
         tmp->next = NULL;
-        tmp->tail = tmp;
+        tmp->tail = NULL;
         tmp->size = 0;
         queue = tmp;
     }
@@ -48,17 +77,53 @@ void pop(llist* queue){
     }
 }
 
-llist* init_queue(int direction){
-    llist* tmp = (llist*) malloc(sizeof(llist));
-    tmp->direct = direction;
+dll* init_queue(int new_x, int new_y){
+    dll* tmp = (dll*) malloc(sizeof(dll));
+    tmp->x = new_x;
+    tmp->y = new_y;
     tmp->next = NULL;
-    tmp->tail = tmp;
+    tmp->tail = NULL;
     tmp->size = 1;
     return tmp;
 }
 
-void bfs(int **map){
-    
+dll* q1 = {-1, 0, NULL, NULL}, q2 = {-1, 0, NULL, NULL};
+
+void bfs(int **map_visited, dll* q, int x, int y, int des_x, int des_y){
+    pair parent[501][501];
+    map_visited[x][y] = 1;
+    q_push(q, x, y);
+    while(q->size != 0){
+        dll* tmp = q;
+        q_pop(q);
+        if(map_visited[x][y] == 1) continue;
+        if(tmp->y + 1 != 1){
+            q_push(q, tmp->x, tmp->y + 1); // up
+            parent[tmp->x][tmp->y + 1] = (pair) {x, y};
+        }
+        if(tmp->x + 1 != 1){
+            q_push(q, tmp->x + 1, tmp->y); // right
+            parent[tmp->x + 1][tmp->y] = (pair) {x, y};
+        }
+        if(tmp->y - 1 != 1){
+            q_push(q, tmp->x, tmp->y - 1); // down
+            parent[tmp->x][tmp->y - 1] = (pair) {x, y};
+        }
+        if(tmp->x - 1 != 1){
+            q_push(q, tmp->x - 1, tmp->y); // left
+            parent[tmp->x - 1][tmp->y] = (pair) {x, y};
+        }
+        if(tmp->x == des_x && tmp->y == des_y){
+            break;
+        };
+    }
+}
+
+pair stimulate(int* step, int pos_x, int pos_y){
+    for(){
+        
+    }
+    return (pair) {pos_x, pos_y};
 }
 
 int main(){
@@ -71,11 +136,6 @@ int main(){
             scanf("%d", &ori_map[i][j]);
         }
     }
-
-    llist queue;
-    llist* head, end;
-    llist step1, step2;
-
 
     return 0;
 }
