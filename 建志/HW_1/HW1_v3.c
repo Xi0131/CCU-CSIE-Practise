@@ -64,7 +64,7 @@ int cnt_queue(queue *q){
     return cnt;
 }
 
-void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *hole_1_filled, int *hole_2_filled){
+void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int flag){
     pair *parent[size][size];
     int visited[size][size];
     memset(visited, 0, size*size*sizeof(int));
@@ -75,14 +75,12 @@ void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *hol
 
     while(q != NULL){
         visited[q->pt->x][q->pt->y] = 1;
-        if((q->pt->x == exit_a1 && q->pt->y == exit_b1) && !(*hole_1_filled)){
+        if((q->pt->x == exit_a1 && q->pt->y == exit_b1) && flag){
             pop(&q);
-            (*hole_1_filled) = 1;
             break;
         }
-        if((q->pt->x == exit_a2 && q->pt->y == exit_b2) && !(*hole_2_filled)){
+        if((q->pt->x == exit_a2 && q->pt->y == exit_b2) && !flag){
             pop(&q);
-            (*hole_2_filled) = 1;
             break;
         }
         if(ori_map[q->pt->x][q->pt->y + 1] != 1 && visited[q->pt->x][q->pt->y + 1] != 1){
@@ -105,8 +103,7 @@ void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *hol
     }
     
     int tx, ty;
-    if((*hole_1_filled) == 1){
-        (*hole_1_filled) = 2;
+    if(flag == 1){
         tx = exit_a1, ty = exit_b1;
     }
     else tx = exit_a2, ty = exit_b2;
@@ -143,7 +140,6 @@ int main(){
 
     int steps_recorded1[2501], steps_count1 = 0;
     int steps_recorded2[2501], steps_count2 = 0;
-    int hole_1_filled = 0, hole_2_filled = 0;
 
     scanf("%d", &sz);
     for(int j = sz - 1; j >= 0; j--){
@@ -154,20 +150,18 @@ int main(){
     scanf("%d %d %d %d %d %d %d %d", &ball_x1, &ball_y1, &ball_x2, &ball_y2, &exit_a1, &exit_b1, &exit_a2, &exit_b2);
     int tx1 = ball_x1, tx2 = ball_x2, ty1 = ball_y1, ty2 = ball_y2;
 
-    bfs(sz, ball_x1, ball_y1, steps_recorded1, &steps_count1, &hole_1_filled, &hole_2_filled);
+    bfs(sz, ball_x1, ball_y1, steps_recorded1, &steps_count1, 1);
     stimulate(&tx2, &ty2, steps_recorded1, &steps_count1);
-    bfs(sz, tx2, ty2, steps_recorded1, &steps_count1, &hole_1_filled, &hole_2_filled);
+    bfs(sz, tx2, ty2, steps_recorded1, &steps_count1, 0);
 
-    hole_1_filled = 0, hole_2_filled = 0;
-
-    bfs(sz, ball_x2, ball_y2, steps_recorded2, &steps_count2, &hole_1_filled, &hole_2_filled);
+    bfs(sz, ball_x2, ball_y2, steps_recorded2, &steps_count2, 1);
     stimulate(&tx1, &ty1, steps_recorded2, &steps_count2);
-    bfs(sz, tx1, ty1, steps_recorded2, &steps_count2, &hole_1_filled, &hole_2_filled);
+    bfs(sz, tx1, ty1, steps_recorded2, &steps_count2, 0);
 
     // if(steps_count1 < steps_count2)
     for(int i = 0 ; i < steps_count1; i++) printf("%d", steps_recorded1[i]);
-    printf("\n");
     // else
+    printf("\n");
     for(int i = 0 ; i < steps_count2; i++) printf("%d", steps_recorded2[i]);
 
     return 0;
