@@ -1,236 +1,174 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define debug printf("hi %d\n", __LINE__);
 
 int sz, ball_x1, ball_y1, ball_x2, ball_y2, exit_a1, exit_b1, exit_a2, exit_b2;
 int ori_map[501][501];
+int steps_recorded[2501], steps_count;
+int hole_1_filled, hole_2_filled;
 
-typedef struct double_linked_list{
-    int x; // also be used to store steps
-    int y;
-    int size; // for queue, true size will be maintained in the first and last node
-    struct double_linked_list *next;
-    struct double_linked_list *prev;
-    struct double_linked_list *tail; // for queue
-} dll;
-
-typedef struct pair{
+typedef struct{
     int x;
     int y;
 } pair;
 
-typedef struct linked_list{
-    int n;
-    int size;
-    struct linked_list *next;
-    struct linked_list *prev;
-} llist;
+typedef struct Queue{
+    pair *pt;
+    struct Queue *next;
+    struct Queue *tail;
+} queue;
 
-llist *push_front(llist *list, int direct){
-    llist *tmp = (llist*) malloc(sizeof(llist));
-    tmp->n = direct;
-    printf("%d\n", tmp->n);
-    tmp->prev = NULL;
-    if(list == NULL){
-        tmp->size = 1;
+pair *make_pair(int x, int y){
+    pair *tmp = (pair*) malloc(sizeof(pair));
+    tmp->x = x;
+    tmp->y = y;
+    return tmp;
+}
+
+void push(queue **q, pair *p){
+    queue *tmp = (queue*) malloc(sizeof(queue));
+    tmp->pt = p;
+    // printf("%d\n", p->x);
+    if(*q != NULL){
         tmp->next = NULL;
+        (*q)->tail->next = tmp;
+        (*q)->tail = tmp;
     }
     else{
-        tmp->size = ++list->size;
-        list->prev = tmp;
-        tmp->next = list;
-    }
-    list = tmp;
-    if(list == NULL) debug;
-    return list;
-}
-
-dll *q_push(dll *queue, int new_x, int new_y){
-    dll *tmp = (dll*) malloc(sizeof(dll));
-    tmp->x = new_x;
-    tmp->y = new_y;
-    tmp->next = NULL;
-    if(queue == NULL){
         tmp->tail = tmp;
-        tmp->prev = NULL;
-        tmp->size = 1;
-        queue = tmp;
-    }
-    else{
-        tmp->prev = queue->tail;
-        queue->tail->next = tmp;
-        queue->tail = tmp;
-        queue->size++;
-        tmp->size = queue->size;
-    }
-    return queue;
-}
-
-dll *q_pop(dll *queue){
-    if(queue != NULL){
-        dll *tmp = queue;
-        queue = tmp->next;
-        if(queue != NULL){
-            queue->prev = NULL;
-            queue->tail = tmp->tail;
-            queue->size = tmp->size - 1;
-        }
-        free(tmp);
-    }
-    return queue;
-}
-
-void q_clear(dll *queue){
-    while(queue != NULL){
-        dll *tmp = queue;
-        queue = tmp->next;
-        free(tmp);
+        tmp->next = NULL;
+        (*q) = tmp;
     }
 }
 
-void bfs(pair **parent, int x, int y, int des_x, int des_y){
-    parent[x][y] = (pair) {0, 0};
-    int map_visited[501][501];
-    dll *queue = NULL;
-    queue = q_push(queue, x, y);
-    while(queue != NULL){
-        dll *q_tmp = queue;
-        printf("%d %d\n", q_tmp->x, q_tmp->y);
-        if(ori_map[q_tmp->x - 1][q_tmp->y] != 1 && map_visited[q_tmp->x - 1][q_tmp->y] != 1){
+void pop(queue **q){
+    queue *tmp = (*q);
+    if(tmp != NULL){
+        if(tmp->next == NULL){
             // debug;
-            queue = q_push(queue, q_tmp->x - 1, q_tmp->y); // up
-            parent[q_tmp->x - 1][q_tmp->y] = (pair) {q_tmp->x, q_tmp->y};
+            q = NULL;
+            free(tmp);
         }
-        if(ori_map[q_tmp->x][q_tmp->y + 1] != 1 && map_visited[q_tmp->x][q_tmp->y + 1] != 1){
-            // debug;
-            queue = q_push(queue, q_tmp->x, q_tmp->y + 1); // right
-            parent[q_tmp->x][q_tmp->y + 1] = (pair) {q_tmp->x, q_tmp->y};
+        else{
+            (*q)->next->tail = (*q)->tail;
+            (*q) = (*q)->next;
+            free(tmp);
         }
-        if(ori_map[q_tmp->x + 1][q_tmp->y] != 1 && map_visited[q_tmp->x + 1][q_tmp->y] != 1){
-            // debug;
-            queue = q_push(queue, q_tmp->x + 1, q_tmp->y); // down
-            parent[q_tmp->x + 1][q_tmp->y] = (pair) {q_tmp->x, q_tmp->y};
-        }
-        if(ori_map[q_tmp->x][q_tmp->y - 1] != 1 && map_visited[q_tmp->x][q_tmp->y - 1] != 1){
-            // debug;
-            queue = q_push(queue, q_tmp->x, q_tmp->y - 1); // left
-            parent[q_tmp->x][q_tmp->y - 1] = (pair) {q_tmp->x, q_tmp->y};
-        }
-        
-        if(q_tmp->x == des_x && q_tmp->y == des_y){
+    }
+}
+
+int cnt_queue(queue *q){
+    int cnt = 0;
+    while(q != NULL){
+        cnt++;
+        q = q->next;
+    }
+    return cnt;
+}
+
+// queue *bfs(int size, int x, int y){
+void bfs(int size, int x, int y){
+    pair *parent[size][size];
+    int visited[size][size];
+    memset(visited, 0, size*size*sizeof(int));
+    parent[x][y] = make_pair(0, 0);
+
+    queue *q = NULL;
+    push(&q, &(pair){x, y});
+
+    while(q != NULL){
+        // debug;
+        visited[q->pt->x][q->pt->y] = 1;
+        if((q->pt->x == exit_a1 && q->pt->y == exit_b1) && !hole_1_filled){
+            pop(&q);
+            hole_1_filled = 1;
             break;
-        };
-        map_visited[q_tmp->x][q_tmp->y] = 1;
-        map_visited[x][y] = 1;
-        queue = q_pop(queue);
+        }
+        if((q->pt->x == exit_a2 && q->pt->y == exit_b2) && !hole_2_filled){
+            // debug;
+            pop(&q);
+            hole_2_filled = 1;
+            break;
+        }
+        if(ori_map[q->pt->x][q->pt->y + 1] != 1 && visited[q->pt->x][q->pt->y + 1] != 1){
+            push(&q, make_pair(q->pt->x, q->pt->y + 1)); // up
+            parent[q->pt->x][q->pt->y + 1] = make_pair(q->pt->x, q->pt->y);
+        }
+        if(ori_map[q->pt->x + 1][q->pt->y] != 1 && visited[q->pt->x + 1][q->pt->y] != 1){
+            push(&q, make_pair(q->pt->x + 1, q->pt->y)); // right
+            parent[q->pt->x + 1][q->pt->y] = make_pair(q->pt->x, q->pt->y);
+        }
+        if(ori_map[q->pt->x][q->pt->y - 1] != 1 && visited[q->pt->x][q->pt->y - 1] != 1){
+            push(&q, make_pair(q->pt->x, q->pt->y - 1)); // down
+            parent[q->pt->x][q->pt->y - 1] = make_pair(q->pt->x, q->pt->y);
+        }
+        if(ori_map[q->pt->x - 1][q->pt->y] != 1 && visited[q->pt->x - 1][q->pt->y] != 1){
+            push(&q, make_pair(q->pt->x - 1, q->pt->y)); // left
+            parent[q->pt->x - 1][q->pt->y] = make_pair(q->pt->x, q->pt->y);
+        }
+        pop(&q);
+        // debug;
     }
-    q_clear(queue);
-}
-
-llist *extract_step(pair **parent, llist *steps, int dest_x, int dest_y){
-    debug;
-    while(parent[dest_x][dest_y].x != 0 && parent[dest_x][dest_y].y != 0){
-        if(parent[dest_x][dest_y].x > dest_x) steps = push_front(steps, 0); // up
-        if(parent[dest_x][dest_y].y < dest_y) steps = push_front(steps, 1); // right
-        if(parent[dest_x][dest_y].x < dest_x) steps = push_front(steps, 2); // down
-        if(parent[dest_x][dest_y].y > dest_y) steps = push_front(steps, 3); // left
-        int tmp_x = dest_x, tmp_y = dest_y;
-        dest_x = parent[tmp_x][tmp_y].x;
-        dest_y = parent[tmp_x][tmp_y].y;
+        // debug;
+    
+    int tx, ty;
+    if(hole_1_filled == 1){
+        hole_1_filled = 2;
+        tx = exit_a1, ty = exit_b1;
     }
-    return steps;
+    else tx = exit_a2, ty = exit_b2;
+    
+    queue *steps = NULL;
+    // printf("%d %d\n", tx, ty);
+    // printf("%d %d \n", parent[tx][ty]->x, parent[tx][ty]->y);
+    while(parent[tx][ty]->x != 0){
+        if(parent[tx][ty]->y < ty) push(&steps, &(pair){0, 0});
+        if(parent[tx][ty]->x < tx) push(&steps, &(pair){1, 0});
+        if(parent[tx][ty]->y > ty) push(&steps, &(pair){2, 0});
+        if(parent[tx][ty]->x > tx) push(&steps, &(pair){3, 0});
+        int next_x = tx, next_y = ty;
+        tx = parent[next_x][next_y]->x;
+        ty = parent[next_x][next_y]->y;
+        // debug;
+    }
+    // debug;
+
+    int cnt = cnt_queue(steps);
+    steps_count += cnt;
+    for(int i = 1; i <= cnt; i++){
+        steps_recorded[steps_count - i] = steps->pt->x;
+        steps = steps->next;
+    }
+
+    // return steps;
 }
 
-void stimulate(llist *steps, int *pos_x, int *pos_y){
-    debug;
-    llist *tmp = steps;
-    if(tmp == NULL) debug;
-    do{
-        debug;
-        printf("%d\n", tmp->n);
-        printf("%d %d\n", *pos_x, *pos_y);
-        if(tmp->n == 0 && ori_map[*pos_x - 1][*pos_y] != 1) (*pos_x)--;
-        if(tmp->n == 1 && ori_map[*pos_x][*pos_y + 1] != 1) (*pos_y)++;
-        if(tmp->n == 2 && ori_map[*pos_x + 1][*pos_y] != 1) (*pos_x)++;
-        if(tmp->n == 3 && ori_map[*pos_x][*pos_y - 1] != 1) (*pos_y)--;
-        tmp = tmp->next;
-    } while(tmp != NULL);
-    debug;
+void stimulate(int *x, int *y){
+    // (*x);(*y);
+    for(int i = 0; i < steps_count; i++){
+        if(steps_recorded[i] == 0 && ori_map[(*x)][(*y) + 1] != 1) (*y)++;
+        if(steps_recorded[i] == 1 && ori_map[(*x) + 1][(*y)] != 1) (*x)++;
+        if(steps_recorded[i] == 2 && ori_map[(*x)][(*y) - 1] != 1) (*y)--;
+        if(steps_recorded[i] == 3 && ori_map[(*x) - 1][(*y)] != 1) (*x)--;
+    }
 }
-
-void print_direct(llist *steps){
-    llist *tmp = steps;
-    do{
-        printf("%d ", tmp->n);
-        tmp = tmp->next;
-    } while(tmp != NULL);
-}
-
-// void print_parent(pair **parent, int x, int y){
-//     while(parent[x][y].x != 0){
-//         printf("parent of %d %d : %d %d\n", x, y, parent[x][y].x, parent[x][y].y);
-//         // printf("see %d %d : %d %d\n", x, y, parent[x][y].x, parent[x][y].y);
-//         printf("%d %d\n", parent[x][y].x, parent[x][y].y);
-//         x = parent[x][y].x;
-//         y = parent[x][y].y;
-//         printf("%d %d\n", x, y);
-//     }
-// }
 
 int main(){
 
-    scanf("%d %d %d %d %d %d %d %d %d", &sz, &ball_x1, &ball_y1, &ball_x2, &ball_y2, &exit_a1, &exit_b1, &exit_a2, &exit_b2);
-    ball_x1 = sz - ball_x1 - 1;
-    ball_x2 = sz - ball_x2 - 1;
-    for(int i = 0; i < sz; i++){
-        for(int j = 0; j < sz; j++){
+    scanf("%d", &sz);
+    for(int j = sz - 1; j >= 0; j--){
+        for(int i = 0; i < sz; i++){
             scanf("%d", &ori_map[i][j]);
         }
     }
+    scanf("%d %d %d %d %d %d %d %d", &ball_x1, &ball_y1, &ball_x2, &ball_y2, &exit_a1, &exit_b1, &exit_a2, &exit_b2);
 
-    pair **parent = (pair**) malloc(sz * sizeof(pair*));
-    for(int i = 0; i < sz; i++) parent[i] = (pair*) malloc(sz * sizeof(pair));
-    for(int i = 0; i < sz; i++){
-        for(int j = 0; j < sz; j++){
-            parent[i][j] = (pair) {0, 0};
-        }
-    }
-    llist *steps_v1_first = NULL, *steps_v1_second = NULL, *steps_v2_first = NULL, *steps_v2_second = NULL;
-    // 1.1
-    bfs(parent, ball_x1, ball_y1, exit_a1, exit_b1);
-    debug;
-    int new_x2 = ball_x2, new_y2 = ball_y2;
-    steps_v1_first = extract_step(parent, steps_v1_first, exit_a1, exit_b1);
-    debug;
-    stimulate(steps_v1_first, &new_x2, &new_y2);
-    debug;
-    
-    // 1.2
-    bfs(parent, new_x2, new_y2, exit_a2, exit_b2);
-    debug;
-    steps_v1_second = extract_step(parent, steps_v1_second, exit_a2, exit_b2);
-
-    // 2.1
-    bfs(parent, ball_x2, ball_y2, exit_a1, exit_b1);
-    int new_x1 = ball_x1, new_y1 = ball_y1;
-    steps_v2_first = extract_step(parent, steps_v2_first, exit_a1, exit_b1);
-    debug;
-    stimulate(steps_v2_first, &new_x1, &new_y1);
-
-    // 2.2
-    bfs(parent, new_x1, new_y1, exit_a2, exit_b2);
-    steps_v2_second = extract_step(parent, steps_v2_second, exit_a2, exit_b2);
-
-    debug;
-    if(steps_v1_first == NULL) debug;
-    if(steps_v1_second == NULL) debug;
-    if(steps_v2_first == NULL) debug;
-    if(steps_v2_second == NULL) debug;
-    printf("%d %d %d %d", steps_v1_first->size, steps_v1_second->size, steps_v2_first->size, steps_v2_second->size);
-    if(steps_v1_first->size < steps_v2_first->size){
-        
-    }
+    bfs(sz, ball_x1, ball_y1);
+    stimulate(&ball_x2, &ball_y2);
+    bfs(sz, ball_x2, ball_y2);
+    for(int i = 0 ; i < steps_count; i++) printf("%d", steps_recorded[i]);
 
     return 0;
 }
