@@ -110,10 +110,10 @@ void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int flag
     
     queue *steps = NULL;
     while(parent[tx][ty]->x != 0){
-        if(parent[tx][ty]->y < ty) push(&steps, &(pair){0, 0});
-        if(parent[tx][ty]->x < tx) push(&steps, &(pair){1, 0});
-        if(parent[tx][ty]->y > ty) push(&steps, &(pair){2, 0});
-        if(parent[tx][ty]->x > tx) push(&steps, &(pair){3, 0});
+        if(parent[tx][ty]->y < ty) push(&steps, make_pair(0, 0));
+        if(parent[tx][ty]->x < tx) push(&steps, make_pair(1, 0));
+        if(parent[tx][ty]->y > ty) push(&steps, make_pair(2, 0));
+        if(parent[tx][ty]->x > tx) push(&steps, make_pair(3, 0));
         int next_x = tx, next_y = ty;
         tx = parent[next_x][next_y]->x;
         ty = parent[next_x][next_y]->y;
@@ -158,10 +158,10 @@ int main(){
     stimulate(&tx1, &ty1, steps_recorded2, &steps_count2);
     bfs(sz, tx1, ty1, steps_recorded2, &steps_count2, 0);
 
-    // if(steps_count1 < steps_count2)
+    if(steps_count1 < steps_count2)
     for(int i = 0 ; i < steps_count1; i++) printf("%d", steps_recorded1[i]);
-    // else
-    printf("\n");
+    else
+    // printf("\n");
     for(int i = 0 ; i < steps_count2; i++) printf("%d", steps_recorded2[i]);
 
     return 0;

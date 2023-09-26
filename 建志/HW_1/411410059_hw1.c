@@ -28,7 +28,7 @@ pair *make_pair(int x, int y){
 void push(queue **q, pair *p){
     queue *tmp = (queue*) malloc(sizeof(queue));
     tmp->pt = p;
-    if(*q != NULL){
+    if((*q) != NULL){
         tmp->next = NULL;
         (*q)->tail->next = tmp;
         (*q)->tail = tmp;
@@ -44,7 +44,7 @@ void pop(queue **q){
     queue *tmp = (*q);
     if(tmp != NULL){
         if(tmp->next == NULL){
-            q = NULL;
+            (*q) = NULL;
             free(tmp);
         }
         else{
@@ -64,7 +64,7 @@ int cnt_queue(queue *q){
     return cnt;
 }
 
-void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *hole_1_filled, int *hole_2_filled){
+void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *h1_filled, int *h2_filled){
     pair *parent[size][size];
     int visited[size][size];
     memset(visited, 0, size*size*sizeof(int));
@@ -75,14 +75,14 @@ void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *hol
 
     while(q != NULL){
         visited[q->pt->x][q->pt->y] = 1;
-        if((q->pt->x == exit_a1 && q->pt->y == exit_b1) && !(*hole_1_filled)){
+        if((q->pt->x == exit_a1 && q->pt->y == exit_b1) && !(*h1_filled)){
             pop(&q);
-            (*hole_1_filled) = 1;
+            (*h1_filled) = 1;
             break;
         }
-        if((q->pt->x == exit_a2 && q->pt->y == exit_b2) && !(*hole_2_filled)){
+        if((q->pt->x == exit_a2 && q->pt->y == exit_b2) && !(*h2_filled)){
             pop(&q);
-            (*hole_2_filled) = 1;
+            (*h2_filled) = 1;
             break;
         }
         if(ori_map[q->pt->x][q->pt->y + 1] != 1 && visited[q->pt->x][q->pt->y + 1] != 1){
@@ -105,18 +105,18 @@ void bfs(int size, int x, int y, int *steps_recorded, int *steps_count, int *hol
     }
     
     int tx, ty;
-    if((*hole_1_filled) == 1){
-        (*hole_1_filled) = 2;
+    if((*h1_filled) == 1){
+        (*h1_filled) = 2;
         tx = exit_a1, ty = exit_b1;
     }
     else tx = exit_a2, ty = exit_b2;
     
     queue *steps = NULL;
     while(parent[tx][ty]->x != 0){
-        if(parent[tx][ty]->y < ty) push(&steps, &(pair){0, 0});
-        if(parent[tx][ty]->x < tx) push(&steps, &(pair){1, 0});
-        if(parent[tx][ty]->y > ty) push(&steps, &(pair){2, 0});
-        if(parent[tx][ty]->x > tx) push(&steps, &(pair){3, 0});
+        if(parent[tx][ty]->y < ty) push(&steps, make_pair(0, 0));
+        if(parent[tx][ty]->x < tx) push(&steps, make_pair(1, 0));
+        if(parent[tx][ty]->y > ty) push(&steps, make_pair(2, 0));
+        if(parent[tx][ty]->x > tx) push(&steps, make_pair(3, 0));
         int next_x = tx, next_y = ty;
         tx = parent[next_x][next_y]->x;
         ty = parent[next_x][next_y]->y;
@@ -141,8 +141,8 @@ void stimulate(int *x, int *y, int *steps_recorded, int *steps_count){
 
 int main(){
 
-    int steps_recorded1[2501], steps_count1 = 0;
-    int steps_recorded2[2501], steps_count2 = 0;
+    int steps_recorded1[250000], steps_count1 = 0;
+    int steps_recorded2[250000], steps_count2 = 0;
     int hole_1_filled = 0, hole_2_filled = 0;
 
     scanf("%d", &sz);
@@ -164,10 +164,10 @@ int main(){
     stimulate(&tx1, &ty1, steps_recorded2, &steps_count2);
     bfs(sz, tx1, ty1, steps_recorded2, &steps_count2, &hole_1_filled, &hole_2_filled);
 
-    // if(steps_count1 < steps_count2)
+    if(steps_count1 < steps_count2)
     for(int i = 0 ; i < steps_count1; i++) printf("%d", steps_recorded1[i]);
-    printf("\n");
-    // else
+    // printf("\n");
+    else
     for(int i = 0 ; i < steps_count2; i++) printf("%d", steps_recorded2[i]);
 
     return 0;
