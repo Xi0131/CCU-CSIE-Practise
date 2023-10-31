@@ -1,8 +1,19 @@
 #include <stdio.h>
 char string[32];
 int main(){
-    int n;
-    scanf("%d", &n);
+    int n, ans = 0;
+    char c;
+    scanf("%d ", &n);
+
+    while(scanf("%c", &c) != EOF){
+        if (c == '\n'){
+            printf("%d \n", ans);
+            ans = 0;
+        }
+        else ans += c;
+    }
+
+    /*
     getchar();
     for(int i = 0; i < n; i++){
         fgets(string, 32, stdin);
@@ -15,6 +26,6 @@ int main(){
         for(int j = 0; j < 32; j++){
             string[j] = 0;
         }
-    }
+    }*/
     return 0;
 }

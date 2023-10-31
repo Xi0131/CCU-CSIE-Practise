@@ -22,7 +22,6 @@ int main(){
     }
 
     // count rounds
-    int deduct = 0;
     for(int i = 0; i < n; i++){
         if(curr_path[i] != end_path[i] && end_path[i] != -1) round_cnt++;
     }
@@ -34,10 +33,8 @@ int main(){
     for(int i = 0; i < n; i++) printf("%d ", curr_path[i]);
     printf("\n");
 
-    // back trace
     int tmp = n - 1;
     while(tmp != -1){
-        // if not equal, modify path and print
         if(curr_path[tmp] != end_path[tmp]){
             curr_path[tmp] = end_path[tmp];
             for(int i = 0; i < n; i++) printf("%d ", curr_path[i]);

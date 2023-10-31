@@ -1,4 +1,5 @@
 #include <stdio.h>
+#define debug printf("debug: %d\n", __LINE__)
 
 int main(){
 
@@ -15,9 +16,11 @@ int main(){
     inversed_path[0] = -1;
 
     // connect those who not connected
+    int flag = 0;
     for(int i = 0; i < n; i++){
         if(curr_path[i] == -1 && end_path[i] != -1){
             curr_path[i] = end_path[i];
+            flag = 1;
         }
     }
 
@@ -26,13 +29,34 @@ int main(){
     for(int i = 0; i < n; i++){
         if(curr_path[i] != end_path[i] && end_path[i] != -1) round_cnt++;
     }
-    printf("%d\n", round_cnt + 3);
+    if(flag){
+        // debug;
+        for(int i = 0; i < n; i++){
+            if(curr_path[i] != start_path[i] && start_path[inversed_path[i]] != -1 && end_path[i] != -1){
+                debug;
+                curr_path[inversed_path[i]] = end_path[inversed_path[i]];    
+                deduct++;
+            }
+        }
+        printf("%d\n", round_cnt + 3 - deduct + 1);
+    }
+    else printf("%d\n", round_cnt + 1);
+    // printf("%d\n", round_cnt + 3);
 
     // print initial and first step
     for(int i = 0; i < n; i++) printf("%d ", start_path[i]);
     printf("\n");
-    for(int i = 0; i < n; i++) printf("%d ", curr_path[i]);
-    printf("\n");
+    if(flag){
+        for(int i = 0; i < n; i++){
+            if(start_path[i] == -1 && end_path[i] != -1){
+                printf("%d ", end_path[i]);
+            }
+            else printf("%d ", start_path[i]);
+        }
+        printf("\n");
+        for(int i = 0; i < n; i++) printf("%d ", curr_path[i]);
+        printf("\n");
+    }
 
     // back trace
     int tmp = n - 1;
@@ -45,8 +69,10 @@ int main(){
         }
         tmp = inversed_path[tmp];
     }
-    for(int i = 0; i < n; i++) printf("%d ", end_path[i]);
-    printf("\n");
+    if(flag){
+        for(int i = 0; i < n; i++) printf("%d ", end_path[i]);
+        printf("\n");
+    }
 
     return 0;
 }
