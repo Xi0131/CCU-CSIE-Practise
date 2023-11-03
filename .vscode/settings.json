@@ -2,6 +2,9 @@
     "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
         "random": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "iostream": "cpp",
+        "sstream": "c",
+        "regex": "c"
     }
 }
