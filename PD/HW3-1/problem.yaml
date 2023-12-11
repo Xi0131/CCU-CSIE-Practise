@@ -1,0 +1,4 @@
+name: default
+limits:
+    memory: 256
+    output: 256
