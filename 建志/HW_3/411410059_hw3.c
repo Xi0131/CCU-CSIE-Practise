@@ -6,10 +6,12 @@
 
 int nodes_num, links_num, timeSlots, req_num, ans;
 
+// a pair to store a request
 typedef struct {
     int src, dst;
 } pair;
 
+// node of binary tree, which is allowed to push into queue
 typedef struct node {
     int v1, v2, t;
     struct node *left;
@@ -17,22 +19,26 @@ typedef struct node {
     struct node *next;
 } TreeNode;
 
+// queue of node
 typedef struct {
     TreeNode *front, *back;
     int size;
 } NodeQueue;
 
+// vector of int
 typedef struct {
     int *data;
     int size;
 } DynamicVector;
 
+// calculate power without pow() in math.h to avoid casting
 int power(int x, int n){
     if(n == 0) return 1;
     else if(n % 2 == 0) return power(x, n / 2) * power(x, n / 2);
     else return power(x, n - 1) * x;
 }
 
+// push_back for vector
 void push_back(DynamicVector *vec, int x) {
     if(vec->size == 0) {
         vec->size++;
@@ -46,6 +52,7 @@ void push_back(DynamicVector *vec, int x) {
     }
 }
 
+// push_back for queue
 void push_node(NodeQueue *q, TreeNode *node){
     if(q->size == 0) {
         q->size++;
@@ -59,6 +66,7 @@ void push_node(NodeQueue *q, TreeNode *node){
     }
 }
 
+// pop queue
 TreeNode *pop_node(NodeQueue *q){
     if(q->front == NULL) debug;
     TreeNode *tmp = q->front;
@@ -68,6 +76,7 @@ TreeNode *pop_node(NodeQueue *q){
     return tmp;
 }
 
+// initialize time space for validation
 int **init_time_space(int nodes_num, int timeslots) {
     int **tmp = (int**) malloc(sizeof(int*) * timeslots);
     for(int i = 0; i < timeslots; i++){
@@ -77,6 +86,7 @@ int **init_time_space(int nodes_num, int timeslots) {
     return tmp;
 }
 
+// set a node as parent and set the two input nodes as child, return new node
 TreeNode *combine_node(TreeNode *left, TreeNode *right) {
     TreeNode *tmp = (TreeNode*) malloc(sizeof(TreeNode));
     tmp->v1 = left->v1;
@@ -87,6 +97,7 @@ TreeNode *combine_node(TreeNode *left, TreeNode *right) {
     return tmp;
 }
 
+// create node of binary tree
 TreeNode *create_node(int v1, int v2, int t){
     TreeNode *tmp = (TreeNode*) malloc(sizeof(TreeNode));
     tmp->v1 = v1;
@@ -98,6 +109,8 @@ TreeNode *create_node(int v1, int v2, int t){
     return tmp;
 }
 
+// do bfs for a req to find sortest path
+// path found is stored in req_path
 void bfs(int start, int end, DynamicVector *adj_list, int *req_path){
     // bfs
     int tmp = start;
@@ -132,12 +145,19 @@ void bfs(int start, int end, DynamicVector *adj_list, int *req_path){
     }
 }
 
+// do validation for the path of a request
+// verify time space with the pattern of a complete binary tree
+// if path is valid (memory of a node used during the process does not exceed memory limit) at time t, update time space
+// if path not valid, t++, until time space is not enough to handle the request, dump the request
 int valid(int *path, int ***timeSpace, int *nodeMem){
     int valid = 0;
+
+    // calculate time cost of request
     int linkTime = (int) ceil(log2((double)(path[nodes_num] - 1))) + 1;
+    
     for(int i = 0; i < timeSlots - linkTime; i++){
 
-        // check if basement is valid
+        // check if reserved time is valid
         int next_time = 0;
         for(int k = 0; k < path[nodes_num] - 1; k++){
             if(k == 0){
@@ -179,14 +199,14 @@ int valid(int *path, int ***timeSpace, int *nodeMem){
         }
 
 
-        // if basement valid, set path
+        // if valid, set path
         if(next_time) continue;
         else{
             path[nodes_num+2] = i + 2;
             path[nodes_num+3] = linkTime + 1;
             valid = 1;
 
-            // basement
+            // reserved time
             for(int k = 0; k < path[nodes_num] - 1; k++){
                 if(k == 0){
                     (*timeSpace)[i][path[k]] += 1;
@@ -212,6 +232,7 @@ int valid(int *path, int ***timeSpace, int *nodeMem){
     return valid;
 }
 
+// print node in post-order
 void post_order_traversal(TreeNode *node){
     if(node == NULL) return;
     post_order_traversal(node->left);
@@ -226,6 +247,7 @@ void post_order_traversal(TreeNode *node){
 
 int main(){
 
+    // input
     scanf("%d %d %d %d", &nodes_num, &links_num, &timeSlots, &req_num);
     int nodeMem[nodes_num];
     pair req[req_num];
@@ -239,8 +261,10 @@ int main(){
     }
     for(int i = 0; i < req_num; i++) scanf("%d %d %d", &i, &req[i].src, &req[i].dst);
 
+    // initialize time space
     int **timeSpace = init_time_space(nodes_num, timeSlots);
 
+    // req_path is to store path of a request, with extension
     // req_path[i][nodes_num] is path size
     // req_path[i][nodes_num + 1] is path id
     // req_path[i][nodes_num + 2] is start time
@@ -256,7 +280,7 @@ int main(){
         bfs(req[i].src, req[i].dst, adj_list, req_path[i]);
     }
     
-    // sort path base on path size, which is located at req_path[i][nodes_num]
+    // sort path based on path size
     for(int i = 0; i < req_num; i++){
         for(int j = 0; j < req_num; j++){
             if(req_path[i][nodes_num] < req_path[j][nodes_num]){
@@ -267,7 +291,7 @@ int main(){
         }
     }
 
-    // check if path is acceptable
+    // verify path
     DynamicVector *acID;
     acID = (DynamicVector*) malloc(sizeof(DynamicVector));
     acID->size = 0;
@@ -276,35 +300,18 @@ int main(){
     acPath->size = 0;
     for(int i = 0; i < req_num; i++){
         int tmp = valid(req_path[i], &timeSpace, nodeMem);
-
         if(tmp){
+            // if path valid, push into vector
             push_back(acID, req_path[i][nodes_num+1]);
             push_back(acPath, i);
             ans++;
-
-            
-            // printf("%d\n", k++);
-            // for(int k = 0; k < nodes_num; k++){
-            //     printf("%2d ", nodeMem[k]);
-            // }
-            // printf("\n");
-            // for(int k = 0; k < nodes_num; k++){
-            //     printf("%2d ", k);
-            // }
-            // printf("\n");
-            // for(int j = timeSlots - 1; j>= 0; j--){
-            //     for(int k = 0; k < nodes_num; k++){
-            //         printf("%2d ", timeSpace[j][k]);
-            //     }
-            //     printf("\n");
-            // }
-            // printf("\n");
         }
     }
 
-    // print result
+    // print number of accepted request 
     printf("%d\n", ans);
     for(int i = 0; i < acPath->size; i++){
+        // print req_id and path
         int path = acPath->data[i];
         printf("%d ", acID->data[i]);
         for(int j = 0; j < req_path[path][nodes_num]; j++){
@@ -312,7 +319,6 @@ int main(){
         }
         printf("\n");
         
-
         // build tree
         NodeQueue *q = (NodeQueue*) malloc(sizeof(NodeQueue));
         q->size = 0;
@@ -322,12 +328,7 @@ int main(){
             TreeNode *tmp = create_node(req_path[path][j], req_path[path][j+1], t);
             push_node(q, tmp);
         }
-        // if(i==16)watch(req_path[path][nodes_num]);
         while(q->size > 1){
-            // if(i == 16){
-            //     debug;
-            //     printf("%d %d\n", q->front->v1, q->front->v2);
-            // }
             if(q->front->v2 == end){
                 q->back->next = q->front;
                 q->back = q->front;
@@ -338,17 +339,16 @@ int main(){
             else{
                 TreeNode *left_node = pop_node(q);
                 TreeNode *right_node = pop_node(q);
-                // if(i == 16) printf("%d %d %d %d\n", left_node->v1, left_node->v2, right_node->v1, right_node->v2);
                 TreeNode *tmp = combine_node(left_node, right_node);
                 push_node(q, tmp);
                 if(right_node->v2 == end) t++;
             }
         }
 
-        // printf("%d\n", q->front->v1);
+        // print tree
         post_order_traversal(q->front);
+        // pop leftover
         pop_node(q);
-        // printf("\n");
     }
 
     return 0;
