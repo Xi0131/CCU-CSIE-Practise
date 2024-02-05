@@ -4,8 +4,7 @@
 
 int main(){
     
-    int a = 15;
-    printf("%x", a);
+    printf("\033[1;31mWELCOME TO OPENGENUS\033[0m\n");
 
     return 0;
 }
