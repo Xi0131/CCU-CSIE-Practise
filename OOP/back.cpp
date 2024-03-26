@@ -14,58 +14,21 @@ const ll INF64 = 1LL<<60;
 class qubit{
     public:
         vector<int> vec;
-        int logQubit;
-        void swap_qubit(qubit &x);
+        void swap_vec(qubit &x);
         void add_connection(int node);
 };
 
 // swap connected node
-void qubit::swap_qubit(qubit &x){
-    swap(logQubit, x.logQubit);
+void qubit::swap_vec(qubit &x){
+    vec.swap(x.vec);
 }
 
 void qubit::add_connection(int node){
     vec.push_back(node);
 }
 
-int bfs(int ls, int le, int (&slots)[], vector<qubit> &qb, vector<pair<int, pair<int, int>>> &ans){
-    bool qvis[10000];
-    int qparent[10000];
-    memset(qvis, 0, sizeof(qvis));
-    memset(qparent, 0, sizeof(qparent));
+void bfs(){
     
-    int sQubit = slots[ls];
-    queue<int> q;
-    q.push(sQubit);
-    
-    int qtmp = q.front();
-    while(!q.empty()){
-        q.pop();
-
-        // break if found
-        if(qb[qtmp].logQubit == le){            
-            break;
-        }
-
-        for(int x : qb[qtmp].vec){
-            if(!qvis[x]){
-                q.push(x);
-                qparent[x] = qtmp;
-                qvis[x] = true;
-            }
-        }
-        
-        qtmp = q.front();
-    }
-
-    int qbacktrack = qtmp;
-    while(qparent[qbacktrack] != sQubit){
-        ans.push_back(make_pair(1, make_pair(qb[qbacktrack].logQubit, qb[qparent[qbacktrack]].logQubit)));
-        swap(slots[qb[qbacktrack].logQubit], slots[qb[qparent[qbacktrack]].logQubit]);
-        swap(qb[qbacktrack].logQubit, qb[qparent[qbacktrack]].logQubit);
-        qbacktrack = qparent[qbacktrack];
-    }
-    return 0;
 }
 
 int main()
@@ -73,11 +36,24 @@ int main()
     int logQubits, gates, precedences, phyQubits, phyLinks;
     cin >> logQubits >> gates >> precedences >> phyQubits >> phyLinks;
     // gates
+    // int cntGate[logQubits + 1];
+    vector<pii> cntGate(logQubits + 1);
+    // memset(cntGate, 0, sizeof(cntGate));
+    for(int i = 0; i < logQubits + 1; i++){
+        cntGate[i] = make_pair(0, i);
+    }
     vector<pii> gate_id = {{0, 0}};
     for(int i = 0, a, b, c; i < gates; i++){
         cin >> a >> b >> c;
         gate_id.push_back(make_pair(b, c));
+        // cntGate[b]++;
+        // cntGate[c]++;
+        cntGate[b].first++;
+        cntGate[c].first++;
     }
+    sort(cntGate.begin(), cntGate.end());
+
+
     // container for topology
     vector<int> precedence_id[gates + 1];
     int in[gates + 1];
@@ -98,16 +74,17 @@ int main()
     int slots[phyQubits + 1];
     // initialization for baseline
     for(int i = 0; i <= phyQubits; i++){
-        qb[i].logQubit = i;
+        // slots[cntGate[i].second] = i;
         slots[i] = i;
     }
 
     vector<pair<int, pair<int, int>>> ans;
     queue<int> q;
-    for(int i = 1; i <= gates; i++)
-        if(in[i] == 0) q.push(i);
-
-
+    for(int i = 1; i <= gates; i++){
+        if(in[i] == 0){
+            q.push(i);
+        }
+    }
     int gate;
     while(!q.empty()){
         gate = q.front();
@@ -118,19 +95,38 @@ int main()
         }
         
         // determine swap
-        int lnode1 = gate_id[gate].first, lnode2 = gate_id[gate].second;
-        int vecSize = qb[lnode1].vec.size();
+        int node1 = gate_id[gate].first, node2 = gate_id[gate].second;
+        int vecSize = qb[node1].vec.size();
         bool foundAdj = false;
-        int pos = slots[lnode1];
+        // watch(node1);
         for(int i = 0; i < vecSize; i++){
-            if(qb[pos].logQubit == lnode2){
+            // if(node1 == 1) watch(qb[node1].vec[i]);
+            if(qb[slots[node1]].vec[i] == node2){
                 foundAdj = true;
                 break;
             }
         }
 
+
         if(!foundAdj){
-            bfs(lnode1, lnode2, slots, qb, ans);
+            bool foundReplace = false;
+            int choose;
+
+            for(int i = 0; i < logQubits + 1; i++){
+                int tmpGate = cntGate[i].second;
+                int tmpPhy = slots[tmpGate];
+                for(int j = 0; j < qb[tmpPhy].vec.size(); j++){
+                    if(qb[tmpPhy].vec[j] == node2){
+                        choose = tmpGate;
+                        foundReplace = true;
+                        break;
+                    }
+                }
+                if(foundReplace) break;
+            }
+
+            swap(slots[choose], slots[node1]);
+            ans.push_back(make_pair(1, make_pair(choose, node1)));
         }
 
 
