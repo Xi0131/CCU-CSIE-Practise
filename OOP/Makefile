@@ -1,3 +1,3 @@
 make:
-	g++ OOP_HW1_411410059.cpp
-	./a.out < 1.in
+	g++ hw2.cpp
+	./a.out

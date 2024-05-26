@@ -1,0 +1,263 @@
+51
+Heart 4
+Diamond 5
+Spade 12
+Club 12
+Club 13
+Club 9
+Diamond 11
+Spade 9
+Diamond 1
+Heart 3
+Club 4
+Club 3
+Diamond 10
+Heart 6
+Club 7
+Club 11
+Diamond 9
+Spade 1
+Spade 11
+Club 1
+Heart 7
+Diamond 13
+Heart 5
+Spade 13
+Spade 6
+Heart 1
+Diamond 7
+Club 2
+Club 10
+Club 8
+Diamond 2
+Diamond 4
+Club 5
+Heart 2
+Spade 8
+Spade 7
+Heart 9
+Spade 2
+Heart 13
+Diamond 8
+Diamond 6
+Heart 12
+Heart 11
+Diamond 3
+Heart 8
+Spade 4
+Diamond 12
+Spade 5
+Club 6
+Spade 3
+Heart 10
+210
+check Diamond 3
+swap Diamond 2 Spade 2
+draw Spade 10
+swap Heart 6 Club 13
+see_r
+play Club 8
+see
+see_r
+check Spade 12
+see
+swap Club 13 Diamond 13
+draw Club 8
+check Club 5
+play Club 6
+check Spade 11
+see
+swap Diamond 11 Spade 13
+see
+see_r
+see
+swap Heart 13 Spade 6
+play Heart 10
+draw Club 6
+play Diamond 9
+check Club 1
+draw Diamond 9
+swap Club 4 Diamond 12
+check Spade 1
+draw Heart 10
+see_r
+see_r
+swap Club 2 Heart 12
+see
+play Heart 1
+play Club 13
+swap Club 6 Spade 1
+see
+see
+see
+check Club 12
+draw Heart 1
+see
+see
+play Heart 1
+swap Spade 3 Diamond 9
+play Club 1
+see
+draw Club 1
+swap Diamond 2 Spade 10
+play Spade 10
+see
+see_r
+draw Spade 10
+swap Spade 5 Diamond 2
+play Diamond 8
+swap Heart 13 Club 4
+check Spade 11
+draw Club 13
+play Spade 12
+check Spade 6
+check Heart 13
+draw Heart 1
+draw Spade 12
+play Heart 1
+swap Spade 13 Club 8
+see_r
+check Spade 6
+swap Spade 13 Spade 11
+check Heart 7
+see
+see_r
+see
+check Spade 6
+play Spade 12
+draw Heart 1
+check Heart 5
+draw Diamond 8
+check Club 1
+play Diamond 10
+swap Spade 11 Heart 6
+draw Spade 12
+check Club 13
+play Club 11
+see_r
+draw Diamond 10
+check Spade 11
+see_r
+play Diamond 8
+check Diamond 7
+see
+see_r
+draw Diamond 8
+swap Diamond 1 Heart 8
+check Club 2
+see
+see_r
+play Spade 3
+see_r
+draw Spade 3
+draw Club 11
+see
+check Heart 7
+see
+play Spade 12
+see
+play Diamond 13
+play Club 12
+see_r
+see
+see_r
+swap Diamond 1 Spade 5
+check Club 13
+see_r
+see
+draw Diamond 13
+draw Club 12
+play Spade 11
+see_r
+swap Heart 3 Club 8
+play Diamond 9
+swap Club 2 Diamond 2
+check Diamond 12
+draw Spade 11
+swap Club 4 Club 6
+see
+swap Club 8 Spade 9
+swap Spade 2 Club 5
+draw Diamond 9
+see_r
+play Diamond 6
+check Diamond 10
+swap Heart 11 Diamond 1
+draw Diamond 6
+draw Spade 12
+swap Club 6 Club 13
+see_r
+check Club 8
+check Spade 11
+play Heart 4
+play Club 1
+play Spade 6
+swap Club 8 Club 2
+draw Spade 6
+see_r
+check Heart 3
+see_r
+check Diamond 13
+check Club 7
+swap Spade 13 Diamond 3
+see_r
+see
+play Club 12
+swap Heart 6 Club 4
+see
+swap Club 8 Heart 11
+draw Club 12
+check Club 12
+see_r
+check Diamond 11
+play Diamond 11
+draw Club 1
+see_r
+see
+see
+see_r
+see
+see
+draw Diamond 11
+see
+see
+play Spade 13
+play Club 5
+check Club 11
+see
+see
+swap Spade 10 Heart 1
+see_r
+play Diamond 3
+play Heart 4
+play Diamond 2
+play Club 4
+check Club 5
+play Spade 12
+play Heart 2
+play Spade 3
+see_r
+play Spade 1
+see
+play Club 9
+see
+play Diamond 9
+play Spade 6
+draw Heart 4
+swap Club 1 Spade 5
+see
+see_r
+see_r
+draw Club 9
+see
+see_r
+see
+see
+draw Spade 1
+play Heart 10
+play Club 10
+see_r
+check Heart 12
+see
+swap Club 9 Diamond 4
+see_r

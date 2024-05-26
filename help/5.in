@@ -1,0 +1,162 @@
+10
+Spade 1
+Heart 13
+Heart 11
+Heart 3
+Heart 6
+Spade 13
+Heart 9
+Spade 6
+Diamond 13
+Club 8
+150
+draw Diamond 1
+see_r
+swap Spade 6 Diamond 13
+play Spade 2
+see_r
+swap Spade 1 Spade 13
+draw Club 12
+draw Diamond 7
+see
+play Spade 4
+see_r
+see_r
+swap Spade 6 Diamond 13
+swap Spade 6 Heart 3
+see_r
+draw Spade 8
+see_r
+check Diamond 6
+swap Heart 9 Diamond 7
+play Heart 11
+see
+check Heart 3
+check Club 5
+see
+check Spade 10
+check Diamond 3
+swap Club 12 Heart 6
+see
+see
+swap Club 8 Heart 6
+swap Spade 8 Club 12
+draw Diamond 6
+see_r
+see_r
+check Club 1
+check Heart 7
+play Club 10
+check Diamond 3
+swap Diamond 7 Diamond 6
+check Spade 6
+see_r
+swap Diamond 7 Club 8
+check Club 12
+check Spade 3
+swap Spade 1 Heart 3
+see
+play Heart 2
+play Heart 12
+check Club 9
+see
+check Spade 10
+see
+see_r
+check Diamond 2
+play Diamond 7
+see_r
+play Diamond 1
+play Diamond 12
+swap Diamond 6 Diamond 13
+see
+check Diamond 12
+draw Diamond 11
+see
+play Diamond 2
+draw Spade 2
+see_r
+draw Club 1
+play Spade 10
+check Heart 9
+play Spade 2
+see
+see_r
+see_r
+check Diamond 10
+draw Club 11
+see_r
+swap Spade 6 Heart 3
+draw Spade 12
+play Diamond 12
+check Club 13
+see
+draw Diamond 3
+draw Diamond 1
+play Heart 7
+draw Diamond 4
+see
+see_r
+see_r
+draw Club 9
+see_r
+see
+check Club 9
+check Spade 6
+play Spade 8
+swap Heart 13 Heart 9
+see_r
+draw Diamond 9
+draw Club 6
+swap Heart 6 Spade 1
+see_r
+see
+swap Heart 9 Club 11
+draw Heart 8
+draw Spade 5
+play Diamond 12
+draw Diamond 8
+check Diamond 10
+swap Spade 13 Diamond 8
+see_r
+draw Diamond 5
+draw Diamond 12
+see_r
+check Heart 10
+see_r
+swap Diamond 4 Club 6
+check Spade 11
+see
+draw Club 13
+play Heart 3
+see_r
+see
+swap Diamond 4 Heart 6
+swap Diamond 4 Diamond 9
+check Diamond 1
+draw Heart 4
+see
+see_r
+see
+play Diamond 13
+swap Spade 5 Spade 1
+see
+see
+see_r
+see_r
+check Spade 7
+see_r
+see_r
+see
+check Club 8
+check Spade 5
+see
+swap Spade 6 Heart 8
+see_r
+play Heart 10
+draw Club 4
+check Heart 6
+see_r
+see
+see
+see_r

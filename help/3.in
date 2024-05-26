@@ -1,0 +1,8 @@
+1
+Diamond 7
+5
+play Spade 1
+draw Heart 8
+swap Heart 8 Diamond 7
+check Heart 8
+see_r

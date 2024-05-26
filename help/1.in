@@ -1,0 +1,11 @@
+4
+Spade 3
+Heart 4
+Diamond 11
+Club 1
+5
+see
+play Spade 3
+swap Diamond 11 Heart 4
+see
+see_r

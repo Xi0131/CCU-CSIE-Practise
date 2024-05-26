@@ -1,0 +1,8 @@
+Heart 1
+Diamond 2
+Heart 7
+Spade 6
+Club 12
+Diamond 1
+Play Diamond 1!
+Nope!
