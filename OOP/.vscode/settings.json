@@ -3,6 +3,8 @@
         "new": "cpp",
         "vector": "cpp",
         "iomanip": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "*.tcc": "cpp",
+        "typeinfo": "cpp"
     }
 }
