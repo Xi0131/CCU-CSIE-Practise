@@ -1,8 +1,11 @@
 # use online gdb
+# to import account by json, enable external id for domjudge
+# in "Configuration settings -> External systems -> Data source" change "all local" to "configuration data external"
 # create team categories (the weekday) & affiliations (the group) first
-# import accounts first
-# then import team
-# the data format: studentName studentID studentCategoryID studentAffiliationID
+# import teams first
+# then import accounts
+# the input data format: studentName studentID studentCategoryID studentAffiliationID
+# credit by: lune
 
 import secrets
 from sys import stdin
@@ -28,14 +31,20 @@ def makeTeam(stuInfo = [], startID = 4):
             print(', {')
         else:
             print('{')
-        print(outFormat('id', str(startID)))
-        print('group_ids: [\"' + stuQuiz +'\"]')
-        print(outFormat('name', stuID + ' ' + stuName))
+        print(outFormat('id', stuID))
+        print('\t\"group_ids\": [\"' + stuQuiz +'\"],')
+        # print(outFormat('name', stuID + ' ' + stuName))
+        print(outFormat('name', stuID))
         print(outFormat('organization_id', stuGroup, ""))
         print('}', end = '')
         flag = 1
         startID += 1
     print(']')
+
+def myMakeTeam(stuInfo = [], startID = 4):
+    print('File_Version\t2')
+    for stuName, stuID, stuQuiz, stuGroup in stuInfo:
+        print(stuID + '\t\t' + stuQuiz + '\t' + stuID + stuGroup + stuGroup + '\t\t')
 
 def makeAccount(stuInfo = []):
     flag = 0
@@ -48,7 +57,8 @@ def makeAccount(stuInfo = []):
             print('{')
         print(outFormat('id', stuID))
         print(outFormat('username', stuID))
-        print(outFormat('password', secrets.token_urlsafe(passwordLen)[:8]))
+        # print(outFormat('password', secrets.token_urlsafe(passwordLen)[:8]))
+        print(outFormat('password', stuID))
         print(outFormat('type', 'team'))
         print(outFormat('team_id', stuID, ''))
         print('}', end = '')
@@ -56,5 +66,6 @@ def makeAccount(stuInfo = []):
     print(']')
 
 stuInfo = readData()
-print(stuInfo)
-makeTeam(stuInfo)
+# print(stuInfo)
+myMakeTeam(stuInfo, startID=5)
+# makeAccount(stuInfo)
