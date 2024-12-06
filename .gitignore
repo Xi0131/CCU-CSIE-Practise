@@ -8,3 +8,5 @@ project/411410059_final_project.zip
 *.zip
 *.out
 *.env
+/help
+/PD_TA/help
